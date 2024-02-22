@@ -3,7 +3,6 @@ import { Stack } from "@mui/material";
 import { useSelector } from "react-redux";
 import ToolbarComponent from "./components/toolbarComponent";
 import Login from "./pages/login";
-import { MRedux } from "./interface";
 function Layout() {
     const reducer = useSelector((state: any) => state.reducer);
     console.log(reducer)

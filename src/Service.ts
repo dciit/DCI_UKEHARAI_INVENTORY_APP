@@ -1,6 +1,6 @@
 
 import Axios from "axios";
-import { MActPlans, MDetail, MParam } from "./interface";
+import { MActPlans } from "./interface";
 const http = Axios.create({
     baseURL: import.meta.env.VITE_API,
     headers: {
@@ -9,19 +9,27 @@ const http = Axios.create({
     }
 });
 
-export function API_INIT_ACT_PLAN(param: MParam) {
-    // console.log(param)
+export function API_INIT_ACT_PLAN(ymd: string) {
     return new Promise<MActPlans[]>(resolve => {
-        http.post(`/plan/get`, param).then((res) => {
+        http.post(`/plan/get`, {
+            ym: ymd
+        }).then((res) => {
             resolve(res.data);
         })
     })
 }
 
 export function API_INIT_MODELS(ym: string) {
-    console.log(`/model/get/${ym}`)
     return new Promise<string[]>(resolve => {
         http.get(`/model/get/${ym}`).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_GET_MASTER(objCode = '') {
+    return new Promise(resolve => {
+        http.post(`/mpck/getMasterList`, { objCode: objCode }).then((res) => {
             resolve(res.data);
         })
     })

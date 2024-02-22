@@ -1,6 +1,6 @@
-import { Box, Button, Card, CardActions, CardContent, CardMedia, Grid, MenuItem, Select, Stack, Typography } from '@mui/material'
+import { Box, Button , Grid, MenuItem, Select, Stack, Typography } from '@mui/material'
 import moment from 'moment';
-import React, { useState } from 'react'
+import  { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 interface MMonth {
     name: string;
@@ -37,7 +37,7 @@ function Home() {
                     {
                         [...Array(3)].map((o: string, i: number) => {
                             let itemYear = parseInt(moment().format('YYYY')) + (i);
-                            return <MenuItem value={itemYear}>{
+                            return <MenuItem key={o} value={itemYear}>{
                                 itemYear
                             }</MenuItem>
                         })
@@ -50,7 +50,6 @@ function Home() {
                         monthTh.map((month: MMonth, i: number) => {
                             return <Grid item xs={6} sm={6} md={3} lg={2}>
                                 {/* <Card sx={{ maxWidth: 345 }} className='bg-[#f6f8fa] cursor-pointer select-none'>
-                                  
                                     <CardContent>
                                         <Typography gutterBottom variant="h5" component="div">
                                             {month.name}
