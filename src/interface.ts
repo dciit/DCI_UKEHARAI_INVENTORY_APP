@@ -38,6 +38,8 @@ export interface MActPlans {
     listPltype: string[];
     listInventory: MInventory[];
     listActMain: MActMain[];
+    listLastInventory: LastInventory[];
+    listHoldInventory: HoldInventory[];
     d01: number;
     d02: number;
     d03: number;
@@ -69,7 +71,7 @@ export interface MActPlans {
     d29: number;
     d30: number;
     d31: number;
-    total:  string;
+    total: string;
 }
 export interface MTest {
     d01: number;
@@ -81,11 +83,25 @@ export interface MActMain {
     cnt: number;
     shiftDate: string;
 }
+export interface LastInventory {
+    ym: string;
+    wc: string;
+    model: string;
+    lbalstk: string;
+    balstk: string;
+}
+export interface HoldInventory {
+    ym: string;
+    wc: string;
+    model: string;
+    lbalstk: string;
+    balstk: string;
+}
 export interface MInventory {
     model: string;
     pltype: string;
     cnt: string;
-    date:string;
+    date: string;
 }
 export interface ListInbound {
     astDate: Date;

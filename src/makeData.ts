@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
-import { ListSaleForecast, MActPlans } from './interface';
-import { initRowCurPln, initRowFinal, initRowInventory, initRowMainAssy, initRowSale, initRowTitleTotalInventory, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { ListSaleForecast, MActPlans, MInventory } from './interface';
+import { initRowCurPln, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryPlanning, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -33,21 +33,39 @@ export const initData = (data: MActPlans[]) => {
         dummyData.push(initRowFinal(oData));
         dummyData.push(initTotalTitleInbound(oData));
         oData.listPltype.map((pltype: string) => {
-            dummyData.push(initTotalInbound(oData, pltype));
+            let haveInbound = oData.listInbound.filter(o => o.pltype == pltype && o.model == oData.model);
+            if (Object.keys(haveInbound).length) {
+                dummyData.push(initTotalInbound(oData, pltype));
+            }
         });
         dummyData.push(initRowTotalSale(oData));
         oData.listPltype.map((pltype: string) => {
             let oSales: ListSaleForecast[] = oData.listSaleForecast.filter(o => o.pltype == pltype && o.modelName == oData.model);
             oSales.map((oSale: ListSaleForecast) => {
-                // console.log(`${oSale.modelCode} modelName : ${oSale.modelName} customer : ${oSale.customer} pltype : ${oSale.pltype}`);
-                dummyData.push(initRowSale(oData, oSale, pltype, oSale.customer));
+                let haveSale = false;
+                [...Array(31)].map((o: number, i: number) => {
+                    if (oSale[`d${(i + 1).toLocaleString('en', { minimumIntegerDigits: 2, useGrouping: false })}`] > 0) {
+                        haveSale = true;
+                    }
+                });
+                if (haveSale) {
+                    dummyData.push(initRowSale(oData, oSale, pltype, oSale.customer));
+                }
             })
 
         });
         dummyData.push(initRowTitleTotalInventory(oData));
         oData.listPltype.map((pltype: string) => {
-            dummyData.push(initRowInventory(oData, pltype));
+            let oInventory: MInventory[] = oData.listInventory.filter(o => o.pltype == pltype && o.model == oData.model);
+            if (oInventory.length) {
+                dummyData.push(initRowInventory(oData, oInventory, pltype));
+            }
         });
+        dummyData.push(initRowHoldInventory(oData))
+        dummyData.push(initRowPDTInventory(oData))
+        dummyData.push(initRowInventoryPlanning(oData, 'current'));
+        // dummyData.push(initRowInventoryPlanning(oData, 'main'));
+        // dummyData.push(initRowInventoryPlanning(oData, 'final'));
         // item.customer = "LINE 2";
         // [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         //     var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
