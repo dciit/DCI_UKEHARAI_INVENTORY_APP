@@ -1,6 +1,7 @@
+//@ts-nocheck
 import { faker } from '@faker-js/faker';
-import { ListSaleForecast, MActPlans, MInventory } from './interface';
-import { initRowCurPln, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryPlanning, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { ListCurpln, MActPlans, MInventory } from './interface';
+import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryPlanning, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -22,62 +23,62 @@ export type Person = {
 };
 
 
-export const initData = (data: MActPlans[]) => {
+export const initData = (data: MActPlans[], year: string) => {
     const dummyData: MActPlans[] = [];
     data.map((oData: MActPlans) => {
-        // item.listCurpln.map((oCurrentPlan: ListCurpln) => {
-        //     console.log(oCurrentPlan)
-        // });
-        dummyData.push(initRowCurPln(oData));
-        dummyData.push(initRowMainAssy(oData));
-        dummyData.push(initRowFinal(oData));
-        dummyData.push(initTotalTitleInbound(oData));
-        oData.listPltype.map((pltype: string) => {
-            let haveInbound = oData.listInbound.filter(o => o.pltype == pltype && o.model == oData.model);
-            if (Object.keys(haveInbound).length) {
-                dummyData.push(initTotalInbound(oData, pltype));
-            }
-        });
         dummyData.push(initRowTotalSale(oData));
-        oData.listPltype.map((pltype: string) => {
-            let oSales: ListSaleForecast[] = oData.listSaleForecast.filter(o => o.pltype == pltype && o.modelName == oData.model);
-            oSales.map((oSale: ListSaleForecast) => {
-                let haveSale = false;
-                [...Array(31)].map((o: number, i: number) => {
-                    if (oSale[`d${(i + 1).toLocaleString('en', { minimumIntegerDigits: 2, useGrouping: false })}`] > 0) {
-                        haveSale = true;
-                    }
-                });
-                if (haveSale) {
-                    dummyData.push(initRowSale(oData, oSale, pltype, oSale.customer));
-                }
-            })
-
-        });
-        dummyData.push(initRowTitleTotalInventory(oData));
-        oData.listPltype.map((pltype: string) => {
-            let oInventory: MInventory[] = oData.listInventory.filter(o => o.pltype == pltype && o.model == oData.model);
-            if (oInventory.length) {
-                dummyData.push(initRowInventory(oData, oInventory, pltype));
+        oData.listSaleForecast.map((oSale) => {
+            let haveSale: number | string = Object.values(oSale).filter((o, i) => o == 0).length;
+            if (haveSale != 31) {
+                dummyData.push(initRowSale(oData, oSale));
             }
+        })
+        // oData.listPltype.map((pltype: string) => {
+        //     let oSales: ListSaleForecast[] = oData.listSaleForecast.filter(o => o.pltype == pltype && o.modelName == oData.model);
+        //     oSales.map((oSale: ListSaleForecast) => {
+        //         let haveSale = false;
+        //         [...Array(31)].map((o: number, i: number) => {
+        //             if (oSale[`d${(i + 1).toLocaleString('en', { minimumIntegerDigits: 2, useGrouping: false })}`] > 0) {
+        //                 haveSale = true;
+        //             }
+        //         });
+        //         if (haveSale) {
+        //             dummyData.push(initRowSale(oData, oSale, pltype, oSale.customer));
+        //         }
+        //     })
+        // });
+        dummyData.push(initRowTitleTotalInventory(oData));
+        oData.inventory.map((oInventory: MInventory) => {
+            dummyData.push(initRowInventory(oData, oInventory, year));
         });
-        dummyData.push(initRowHoldInventory(oData))
-        dummyData.push(initRowPDTInventory(oData))
-        dummyData.push(initRowInventoryPlanning(oData, 'current'));
-        // dummyData.push(initRowInventoryPlanning(oData, 'main'));
-        // dummyData.push(initRowInventoryPlanning(oData, 'final'));
-        // item.customer = "LINE 2";
-        // [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
-        //     var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        //     let indexMainOfDate = oData.listActMain.findIndex((o => o.shiftDate.substring(o.shiftDate.length - 2) == vDay));
-        //     if(indexMainOfDate != -1){
-        //         item[`d${vDay}`] = oData.listActMain[indexMainOfDate].cnt;
-        //     }else{
-        //         item[`d${vDay}`] = 0;
+        // oData.listPltype.map((pltype: string) => {
+        //     let oInventory: MInventory[] = oData.listInventory.filter(o => o.pltype == pltype && o.model == oData.model);
+        //     if (oInventory.length) {
+        //         dummyData.push(initRowInventory(oData, oInventory, pltype));
         //     }
         // });
-        // console.log(item)
-        // dummyData.push(item);
+        dummyData.push(initRowInventoryBalance(oData));
+        dummyData.push(initTotalTitleInbound(oData));
+        oData.listCurpln.map((oCurpln: ListCurpln) => {
+            dummyData.push(initRowCurPln(oData, oCurpln));
+            dummyData.push(initRowMainAssy(oData,oCurpln.wcno));
+            dummyData.push(initRowFinal(oData,oCurpln.wcno));
+        });
+        dummyData.push(initRowTotalCurPlnAllLine(oData));
+        // oData.listPltype.map((pltype: string) => {
+        //     let haveInbound = oData.listInbound.filter(o => o.pltype == pltype && o.model == oData.model);
+        //     if (Object.keys(haveInbound).length) {
+        //         dummyData.push(initTotalInbound(oData, pltype));
+        //     }
+        // });
+        // dummyData.push(initRowCurPln(oData));
+        // dummyData.push(initRowMainAssy(oData));
+        // dummyData.push(initRowFinal(oData));
+        dummyData.push(initRowHoldInventory(oData))
+        dummyData.push(initRowPDTInventory(oData))
+        dummyData.push(initRowInventoryPlanning(oData));
+        dummyData.push(initRowInventoryPlanningMain(oData));
+        dummyData.push(initRowEmpty());
     })
     return dummyData;
 }

@@ -10,8 +10,23 @@ import {
 import { initData, type Person } from '../makeData';
 import { API_INIT_ACT_PLAN } from '../Service';
 import moment from 'moment';
-import { Button, MenuItem, Select, Typography } from '@mui/material';
+import { Box, Button, CircularProgress, MenuItem, Select, Stack, Tab, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
+import { MGetActPlan, MTitle } from '../interface';
+import DialogAdjustInventoryMain from '../components/dialog.adjust.inventory';
+import CircleIcon from '@mui/icons-material/Circle';
+import { TabContext, TabList, TabPanel } from '@material-ui/lab';
+import UkeharaiGroupModel from './ukeharai.groupmodel';
+import ListIcon from '@mui/icons-material/List';
+import ScatterPlotIcon from '@mui/icons-material/ScatterPlot';
+import PageAdjustPlan from './ukeharai.adjust.plan';
+import { mkConfig, generateCsv, download } from 'export-to-csv';
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
+const csvConfig = mkConfig({
+    fieldSeparator: ',',
+    decimalSeparator: '.',
+    useKeysAsHeaders: true,
+});
 const Index = () => {
     const [_year, setYear] = useState<string>(moment().format('YYYY'));
     const [_years] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
@@ -32,14 +47,71 @@ const Index = () => {
     const [titleRows] = useState<string[]>([
         'Current Plan', 'Total Inbound Finishgoods', 'Total Sales Plan&Forecast', 'Total Inventory', 'Inventory Planning', 'Inventory (Hold)', 'Inventory (PDT)'
     ]);
+    const [openAdjStockMain, setOpenAdjStockMain] = useState(false);
+    const [ModelSelected, setModelSelected] = useState({});
+    const [once, setOnce] = useState<boolean>(true);
+    const [TitleStyle] = useState<MTitle[]>([
+        { key: 'Current Plan', bg: 'bg-green', class: 'bg-header-current-plan', icon: true, iconColor: 'text-green-500' },
+        { key: 'Result_Main Assembly', bg: 'bg-green', class: 'bg-header-result-main', icon: false, iconColor: '' },
+        { key: 'Result_Final Line', bg: 'bg-green', class: 'bg-header-result-final', icon: false, iconColor: '' },
+        { key: 'Total Inbound Finishgoods', bg: 'bg-red', class: 'bg-header-total-inbound', icon: true, iconColor: 'text-blue-500' },
+        { key: 'Inbound Finishgoods', bg: 'bg-orange', class: 'bg-inbound', icon: false, iconColor: '' },
+        { key: 'Total Sales Plan&Forecast', bg: 'bg-orange', class: 'bg-header-sale', icon: true, iconColor: 'text-orange-500' },
+        { key: 'Sales Plan&Forecast', bg: 'bg-orange', class: 'bg-sale', icon: false, iconColor: '' },
+        { key: 'Total Inventory', bg: '', class: 'bg-header-inventory', icon: true, iconColor: 'text-purple-500' },
+        { key: 'Inventory (Balance)', bg: '', class: 'bg-header-inventory-balance', icon: true, iconColor: 'text-pink-600' },
+        { key: 'Inventory', bg: '', class: 'bg-inventory', icon: false, iconColor: '' },
+        { key: 'Inventory (Warehouse)', bg: '', class: 'bg-inventory', icon: false, iconColor: '' },
+        { key: 'Inventory Planning', bg: '', class: 'bg-inventory-planning', icon: true, iconColor: 'text-orange-600' },
+        { key: 'Inventory Planning (Main)', bg: '', class: 'bg-inventory-planning-main', icon: true, iconColor: 'text-orange-700' },
+        { key: 'Inventory (Hold)', bg: '', class: 'bg-inventory-hold', icon: true, iconColor: 'text-yellow-500' },
+        { key: 'Inventory (PDT)', bg: '', class: 'bg-inventory-pdt', icon: true, iconColor: 'text-yellow-500' },
+        { key: 'Total Current Plan', bg: '', class: 'bg-total-current-all-line', icon: true, iconColor: 'text-green-600' },
+        { key: 'empty', bg: '', class: 'bg-empty', icon: false, iconColor: '' }
+
+    ])
+    const [value, setValue] = useState<string>('1');
+
+    const handleChange = (event: React.SyntheticEvent, newValue: string) => {
+        setValue(newValue);
+    };
+
+    async function handleCloseDialogAdjustInventoryMain() {
+        setOpenAdjStockMain(false);
+        setModelSelected([]);
+    }
+    function handleOpenAdjStockMain(oModel: any) {
+        setModelSelected(oModel.row.original);
+    }
+    useEffect(() => {
+        if (Object.keys(ModelSelected).length) {
+            setOpenAdjStockMain(true);
+        }
+    }, [ModelSelected])
+
+    function genStyle(cell: any) {
+        let type: string = cell.row.original.type;
+        let classs: string = '';
+        let iStyle = TitleStyle.filter(o => o.key == type);
+        if (iStyle.length) {
+            try {
+                classs = iStyle[0].class;
+            } catch (e) {
+                alert(e);
+            }
+        }
+        return classs;
+    }
     const cols: any = [
         {
             accessorKey: 'model',
-            header: 'Group Model',
-            size: 100,
+            header: 'Grp Model',
+            size: 125,
             enableSorting: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
+            filterVariant: 'multi-select',
+            Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
         },
         {
             accessorKey: 'sbu',
@@ -52,15 +124,16 @@ const Index = () => {
         {
             accessorKey: 'wcno',
             header: 'Line',
-            size: 100,
+            size: 75,
             enableSorting: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
+            filterVariant: 'multi-select',
+            Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
         },
         {
             accessorKey: 'modelCode',
             header: 'Model',
-            // filterFn: 'fuzzy',
             enableColumnOrdering: false,
             size: 125,
             filterVariant: 'multi-select',
@@ -70,9 +143,11 @@ const Index = () => {
             accessorKey: 'sebango',
             header: 'Sebango',
             size: 100,
+            filterVariant: 'multi-select',
             enableSorting: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
+            Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
         },
         {
             accessorKey: 'type',
@@ -80,42 +155,50 @@ const Index = () => {
             size: '200',
             enableColumnOrdering: false,
             enableSorting: false,
+            filterVariant: 'multi-select',
             muiTableBodyCellProps: ({
                 cell
             }) => ({
                 sx: {
-                    backgroundColor: titleRows.includes(cell.getValue<string>()) ? 'rgba(22, 184, 44, 0.5)' : '',
-                    fontWeight: titleRows.includes(cell.getValue<string>()) ? '700' : '400',
+                    backgroundColor: TitleStyle.filter(o => o.key == cell.getValue()).length ? TitleStyle.filter(o => o.key == cell.getValue())[0].bg : '',
+                    fontWeight: titleRows.includes(cell.getValue()) ? '700' : '400',
                 }
             }),
             Cell: ({ cell }) => {
-                let txtType = cell.getValue();
-                let classs = '';
-                if (txtType == 'Current Plan' || txtType == 'Total Inbound Finishgoods' || txtType == 'Total Sales Plan&Forecast' || txtType == 'Total Inventory') {
-                    classs = 'current-plan-bg'
+                let type = cell.getValue();
+                let classs: string = '';
+                let iStyle = TitleStyle.filter(o => o.key == type);
+                let showIcon = false;
+                let iconColor: string = '';
+                if (iStyle.length) {
+                    showIcon = iStyle[0].icon;
+                    iconColor = iStyle[0].iconColor;
+                    try {
+                        classs = iStyle[0].class;
+                    } catch (e) {
+                        alert(e);
+                    }
                 }
-                if (txtType == 'Result_Main Assembly' || txtType == 'Result_Final Line' || txtType == 'Inbound Finishgoods' || txtType == 'Sales Plan&Forecast' || txtType == 'Inventory') {
-                    classs = 'result-main-bg'
-                }
-                return <div className={`${classs}`}>{cell.getValue()}</div>
+                return <div className={`${classs} ${showIcon ? 'pl-1' : ' pl-5 '} gap-1 flex`} >{showIcon && <CircleIcon className={`${iconColor}`} sx={{ fontSize: 10 }} />}{cell.getValue()}</div>
             }
         },
         {
             accessorKey: 'customer',
             header: 'Customer',
             enableSorting: false,
-            size: 125,
+            size: 100,
+            filterVariant: 'multi-select',
             enableColumnOrdering: false,
             muiTableBodyCellProps: ({
                 cell
             }) => ({
                 sx: {
-                    backgroundColor: cell.getValue<string>() != '' ? '#8adb9547' : '',
+                    backgroundColor: cell.getValue() != '' ? '' : '',
                     fontWeight: '700',
                 }
             }),
             Cell: ({ cell }) => {
-                return <div className={`customer-bg`}>{cell.getValue()}</div>
+                return <div className={``}>{cell.getValue()}</div>
             }
         },
         {
@@ -129,9 +212,24 @@ const Index = () => {
             }) => ({
                 sx: {
                     fontWeight: '700',
-                    backgroundColor: cell.getValue<string>() != '' ? '#8adb9540' : ''
+                    backgroundColor: cell.getValue() != '' ? '' : ''
                 }
             }),
+            Cell: ({ cell }) => {
+                // console.log(cell);
+                // console.log(data)
+                let LastInventory: number = cell.getValue() != '' ? parseInt(cell.getValue()) : 0;
+                let type = cell.row.original.type;
+                let lastInventoryMain = typeof cell.row.original.lastInventoryMain != 'undefined' ? cell.row.original.lastInventoryMain : [];
+                if (type == 'Inventory Planning (Main)') {
+                    let mainResult: number = lastInventoryMain?.bal | 0;
+                    return <Button variant='contained' size='small' onClick={() => handleOpenAdjStockMain(cell)}>Adj.Main ({mainResult.toLocaleString('en')})</Button>
+                } else if (type == 'Inventory Planning') {
+                    return <span className='w-full text-right pr-2 font-bold'>Last Month : {LastInventory.toLocaleString('en')}</span>
+                } else {
+                    return <span className={`${cell.row.original.type == 'Inbound Finishgoods' && genStyle(cell)}`}>{cell.getValue()}</span>
+                }
+            }
         },
     ];
     [...Array(31)].map((o: any, i: number) => {
@@ -139,30 +237,60 @@ const Index = () => {
         cols.push({
             accessorKey: `d${kDay}`,
             header: `${kDay}`,
-            size: 75,
+            size: 55,
             enableSorting: false,
-            enableColumnFilters: false,
+            enableFilters: false,
             enableColumnOrdering: false,
+            enableColumnFilter: false,
+            enableColumnFilterModes: false,
+            showColumnFilters: false,
             Cell: ({ cell }) => {
-                if (titleRows.includes(data[cell.row.index].type)) {
-                    return cell.getValue() != '' ? <span className={`text-right w-full pr-2 ${cell.getValue() > 0 ? ' bg-[#e2f6e4] font-bold' : (cell.getValue() < 0 && 'bg-red-100 font-bold')}`}>{cell.getValue() > 0 ? parseInt(cell.getValue()).toLocaleString('en') : (parseInt(cell.getValue()) == 0 ? '' : parseInt(cell.getValue()).toLocaleString('en'))}</span> : '';
-                } else {
-                    return cell.getValue();
+                let type: string = cell.row.original.type;
+                let classs: string = '';
+                let iStyle = TitleStyle.filter(o => o.key == type);
+                if (iStyle.length) {
+                    try {
+                        classs = iStyle[0].class;
+                    } catch (e) {
+                        alert(e);
+                    }
                 }
-
+                let val: number = 0;
+                if (cell.getValue() != '') {
+                    val = parseInt(cell.getValue());
+                }
+                return cell.getValue() != '' ? <span className={`${classs}-day${val > 0 ? '' : '-minus'} w-full pr-2 text-right font-bold ${val > 0 ? '' : 'text-red-600'}`}>
+                    {/* {val < 0 && <span className="relative flex h-1 w-1">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                        <span className="relative inline-flex rounded-full h-1 w-1 bg-red-600"></span>
+                    </span>} */}
+                    {val.toLocaleString('en')}
+                </span> : <span className={`${classs}-empty`}></span>;
             }
         });
     })
     cols.push({
         accessorKey: `total`,
         header: `Total`,
+        enableSorting: false,
+        size: 100,
+        enableFilters: false,
+        enableColumnOrdering: false,
+        enableColumnFilter: false,
+        enableColumnFilterModes: false,
+        showColumnFilters: false,
         Cell: ({ cell }) => {
-            let total: number = 0;
+            let total: string = '0';
             try {
-                total = parseInt(cell.getValue().replace(',', ''));
-                return <span className={`w-full text-right  pr-4 ${parseInt(cell.getValue()) > 0 && 'font-bold'}`}>{total > 0 ? total.toLocaleString('en') : ''}</span>
-            } catch {
-                return <span className={`w-full text-right  pr-4`}>-</span>
+                if (cell.getValue() == '') {
+                    total = '0';
+                } else {
+                    total = cell.getValue();
+                }
+                let val: number = parseInt(total.toString().replace(',', ''));
+                return <span className={`${genStyle(cell)}-total bg-total w-full text-right  pr-4 ${val > 0 && 'font-bold'}`}>{val > 0 ? val.toLocaleString('en') : (val < 0 && <span className='text-red-600 font-bold'>{val.toLocaleString('en')}</span>)}</span>
+            } catch (e) {
+                return <span className={`bg-total w-full text-right  pr-4`}>-</span>
             }
         }
     });
@@ -175,10 +303,16 @@ const Index = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [sorting, setSorting] = useState<MRT_SortingState>([]);
     useEffect(() => {
-        if (typeof window !== 'undefined') {
+        if (once && typeof window !== 'undefined') {
             initContent();
+            setOnce(false);
         }
-    }, []);
+    }, [once]);
+    useEffect(() => {
+        if (data.length) {
+            setIsLoading(false);
+        }
+    }, [data]);
 
     useEffect(() => {
         try {
@@ -189,12 +323,15 @@ const Index = () => {
     }, [sorting]);
 
     async function initContent() {
-        const res = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
-        let data: any = initData(res);
+        setIsLoading(true);
+        const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
+        let data: any = initData(res.content, _year);
         setData(data);
-        setIsLoading(false);
     }
-
+    const handleExportData = () => {
+        const csv = generateCsv(csvConfig)(data);
+        download(csvConfig)(csv);
+    };
     const table = useMaterialReactTable({
         columns,
         data, //10,000 rows
@@ -203,7 +340,7 @@ const Index = () => {
         enablePagination: false,
         enableColumnPinning: true,
         enableColumnVirtualization: true,
-        enableGlobalFilterModes: true,
+        enableColumnActions: false,
         positionGlobalFilter: 'left',
         enableRowVirtualization: true,
         enableColumnOrdering: true,
@@ -215,60 +352,81 @@ const Index = () => {
         rowVirtualizerOptions: { overscan: 1 }, //optionally customize the row virtualizer
         columnVirtualizerOptions: { overscan: 1 },
         muiTableBodyRowProps: { hover: false },
-        // mrtTheme: (theme) => ({
-        //     baseBackgroundColor: theme.palette.background.default, //change default background color
-        // }),
         initialState: {
             columnPinning: { left: ['modelCode', 'type'] },
             showGlobalFilter: true,
             density: 'compact'
         },
-        muiTableHeadCellProps: ({ column }) => ({
+        muiTableHeadCellProps: () => ({
             sx: {
                 backgroundColor: '#f5f5f5',
             },
         }),
-        muiTableHeadProps: ({ head }) => (
-            {
-                sx: {
-                    color: 'red'
-                }
-            }
+        renderTopToolbarCustomActions: () => (
+            <Button
+                variant='contained'
+                onClick={handleExportData}
+                startIcon={<FileDownloadIcon />}
+            >
+                Export All Data
+            </Button>
         )
     });
-
-    return <div className='tb-ukeharai p-4'>
-        <div className='group-search flex gap-2 px-4 pt-4' >
-            <div>
-                <Typography>Year</Typography>
-                <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
+    return <div className=' p-4'>
+        <TabContext value={value}>
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }} >
+                <TabList onChange={handleChange} >
+                    <Tab icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" />
+                    <Tab icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" />
+                    <Tab icon={<ScatterPlotIcon />} iconPosition='start' label="Adjust Plan" value="3" />
+                </TabList>
+            </Box>
+            <TabPanel value="1">
+                <div className='group-search flex gap-2 px-4 py-4' >
+                    <div>
+                        <Typography>Year</Typography>
+                        <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
+                            {
+                                _years.map((oYear: string, iYear: number) => {
+                                    return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
+                                })
+                            }
+                        </Select>
+                    </div>
+                    <div>
+                        <Typography>Month</Typography>
+                        <Select value={_month} size='small' onChange={(e: any) => {
+                            setMonth(e.target.value);
+                        }}>
+                            {
+                                _months.map((oMonth: string, iMonth: number) => {
+                                    return <MenuItem value={iMonth} key={iMonth}>{oMonth}</MenuItem>
+                                })
+                            }
+                        </Select>
+                    </div>
+                    <div>
+                        <Typography>&nbsp;</Typography>
+                        <Button startIcon={<SearchIcon />} variant='contained' size='small' onClick={initContent}>ค้นหา</Button>
+                    </div>
+                </div>
+                <div className=' tb-ukeharai p-4'>
                     {
-                        _years.map((oYear: string, iYear: number) => {
-                            return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
-                        })
+                        !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
+                            <CircularProgress />
+                            <Typography>กำลังโหลดข้อมูล</Typography>
+                        </Stack> : <MaterialReactTable table={table} />
                     }
-                </Select>
-            </div>
-            <div>
-                <Typography>Month</Typography>
-                <Select value={_month} size='small' onChange={(e) => {
-                    setMonth(e.target.value);
-                }}>
-                    {
-                        _months.map((oMonth: string, iMonth: number) => {
-                            return <MenuItem value={iMonth} key={iMonth}>{oMonth}</MenuItem>
-                        })
-                    }
-                </Select>
-            </div>
-            <div>
-                <Typography>&nbsp;</Typography>
-                <Button startIcon={<SearchIcon />} variant='contained' size='small' onClick={initContent}>ค้นหา</Button>
-            </div>
-        </div>
-        <div className='p-4'>
-            <MaterialReactTable table={table} />
-        </div>
+                </div>
+            </TabPanel>
+            <TabPanel value="2">
+                <UkeharaiGroupModel />
+            </TabPanel>
+            <TabPanel value="3">
+                <PageAdjustPlan data={data} />
+            </TabPanel>
+        </TabContext>
+        <DialogAdjustInventoryMain open={openAdjStockMain} close={handleCloseDialogAdjustInventoryMain} model={ModelSelected} />
     </div>;
 };
 

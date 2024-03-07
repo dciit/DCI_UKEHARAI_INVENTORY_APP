@@ -14,7 +14,7 @@ function Layout() {
         {
             !oLogin ? <Login /> : <Stack className='h-[100%] w-[100%] bg-[#e7ebee++]'>
                 <ToolbarComponent />
-                <div className="h-[90%]">
+                <div className="h-[90%]  bg-[#f9f9f9]">
                     <Outlet />
                 </div>
             </Stack>
