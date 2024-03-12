@@ -4,7 +4,7 @@ import { Column, Row, Id, MenuOption, CellChange, ReactGrid } from "@silevis/rea
 import "@silevis/reactgrid/styles.css";
 import { MModels, UkeCurPln } from '../interface';
 import { API_DISTRIBUTION, API_GET_CURPLNS, API_GET_MODELS } from '../Service';
-import { Badge, Box, Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Badge, Box, Button, Card, CardContent, CircularProgress, Divider, Grid, IconButton, MenuItem, Paper, Select, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 import { SearchOutlined } from '@mui/icons-material';
 import { MRT_ColumnDef, MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import SearchIcon from '@mui/icons-material/Search';
@@ -106,12 +106,9 @@ const applyChangesToPlan = (
 
 
 const PageAdjustPlan = (props: any) => {
-    // const { data } = props;
     const year: string = moment().format('YYYY');
-    // const [ym, setYm] = useState<string>(`${year}${month}`);
     const [people, setPeople] = React.useState<UkeCurPln[]>(getPlan());
-    const rows = getRows(people);
-    // const columns = getColumns();
+    // const rows = getRows(people);
     const [models, setModels] = useState<MModels[]>([]);
     const [once, setOnce] = useState<boolean>(true);
     const modelgroups: string[] = ['1YC', '2YC', 'SCR', 'ODM'];
@@ -121,11 +118,14 @@ const PageAdjustPlan = (props: any) => {
     const [openDialogEditPlan, setOpenDialogEditPlan] = useState<boolean>(false);
     const [modelSelected, setModelSelected] = useState<MModels>();
     const [monthSelected, setMonthSelected] = useState<string>('');
-    const [curplns, setCurplns] = useState<UkeCurPln[]>([]);
+    // const [curplns, setCurplns] = useState<UkeCurPln[]>([]);
     const [ymSelected, setYmSelected] = useState<string>('');
+    const [filterYear, setFilterYear] = useState<string>(moment().format('YYYY'));
     useEffect(() => {
-        if (once)
-            initModel();
+        if (once) {
+
+        }
+        // initModel();
     }, [once]);
     useEffect(() => {
         if (models.length) {
@@ -133,38 +133,8 @@ const PageAdjustPlan = (props: any) => {
             initRow();
         }
     }, [models]);
-    useEffect(() => {
-        if (data.length) {
-            console.log('eff data')
-        }
-    }, [data])
-    async function initModel() {
-        // let fetch_current_plan = await API_GET_CURPLNS(year);
-        // setCurplns(fetch_current_plan);
-        // let fetch_models = await API_GET_MODELS();
-        // let init_models: MModels[] = [];
-        // fetch_models.map((oModel: MModels) => {
-        //     let item_models: MModels = {
-        //         modelCode: oModel.modelCode,
-        //         model: oModel.model,
-        //         open: false,
-        //         modelType: oModel.modelType
-        //     }
-        //     init_models.push(item_models);
-        // });
-        // setModels([...init_models]);
-        // setData([...data, ...init_models]);
-    }
-
     async function initRow() {
         let rRow: UkeCurPln[] = [];
-        // [...Array(100)].map((o: any, i: number) => {
-        //     let iRow: UkeCurPln = {
-
-        //     };
-        //     rRow.push(iRow);
-        // });
-        // console.log(rRow)
     }
     const handleChanges = (changes: CellChange[]) => {
         changes.map((o, i) => {
@@ -206,17 +176,6 @@ const PageAdjustPlan = (props: any) => {
             size: 150,
         },
     ];
-    // [...Array(12)].map((o: any, iMonth: number) => {
-    //     let txtMonth: string = (iMonth + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-    //     cols.push({
-    //         accessorKey: `M${txtMonth}`, //access nested data with dot notation
-    //         header: `M${txtMonth}`,
-    //         size: 50,
-    //         Cell: ({ cell }) => {
-    //             return <div><IconButton color='erro'><SearchIcon /></IconButton></div>
-    //         }
-    //     })
-    // })
     const columns = useMemo<MRT_ColumnDef<Person>[]>(
         () => cols,
         [],
@@ -279,7 +238,7 @@ const PageAdjustPlan = (props: any) => {
     }, [ymSelected])
     return (
         <div>
-            <Grid container>
+            <Grid container gap={1}>
                 <Grid item xs={12}>
                     <Box sx={{
                         border: '1px solid #ddd',
@@ -303,45 +262,94 @@ const PageAdjustPlan = (props: any) => {
                                         </Select>
                                     </Box>
                                 </Stack>
+                                <Stack direction={'row'} alignItems={'center'} >
+                                    <Typography>Year</Typography>
+                                    <Box sx={{
+                                        paddingLeft: '16px'
+                                    }}>
+                                        <Select size='small' value={filterYear} onChange={(e) => setFilterYear(e.target.value)}>
+                                            {
+                                                [
+                                                    moment().add(-1, 'year').format('YYYY'),
+                                                    moment().format('YYYY'),
+                                                    moment().add(1, 'year').format('YYYY')
+                                                ].map((oYear: string, iYear: number) => {
+                                                    return <MenuItem key={iYear} value={oYear}> {oYear}</MenuItem>
+                                                })
+                                            }
+                                        </Select>
+                                    </Box>
+                                </Stack>
                                 <Button variant='contained' startIcon={<SearchOutlined />}>Search</Button>
                             </Stack>
                         </Stack>
                     </Box>
                 </Grid>
-                <Grid container item xs={12} spacing={1} pt={2}>
-                    {
-                        [...Array(12)].map((oMonth, iMonth: number) => {
-                            let txtMonth = (iMonth + 1).toLocaleString('en', { minimumIntegerDigits: 2 })
-                            return <Grid item xs={4} onClick={() => handleOpenEditPlan(`${year}${txtMonth}`)}>
-                                <Card>
-                                    <CardContent>
-                                        <Stack gap={2}>
-                                            <Stack direction={'row'} justifyContent={'space-between'}>
-                                                <Stack direction={'column'}>
-                                                    <Typography className='font-bold'>{moment().month(txtMonth).format('MMMM').toUpperCase()}</Typography>
-                                                    <Typography variant='caption'>{
-                                                        _months[iMonth]
-                                                    }</Typography>
+                <Grid container item xs={12}>
+                    <TableContainer component={Paper}>
+                        <Table size='small'>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>Month</TableCell>
+                                    <TableCell align='right'>Rev</TableCell>
+                                    <TableCell align='right'>Lrev</TableCell>
+                                    <TableCell align='right'>Status</TableCell>
+                                    <TableCell align='right'>#</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    [...Array(12)].map((oMonth, iMonth: number) => {
+                                        let txtMonth: string = (iMonth + 1).toLocaleString('en', { minimumIntegerDigits: 2 })
+                                        return <TableRow>
+                                            <TableCell className='pl-[1%]'>{moment().month(iMonth + 1).format('MMMM').toUpperCase()}</TableCell>
+                                            <TableCell align='right'>-</TableCell>
+                                            <TableCell align='right'>-</TableCell>
+                                            <TableCell>
+                                                <div className='bg-blue-500 text-white px-2 py-2 rounded-lg  w-fit'>
+                                                    แจกจ่าย
+                                                </div>
+                                            </TableCell>
+                                            <TableCell>
+                                                <Stack gap={1} direction={'row'}>
+                                                    <Button variant='contained' size='small' onClick={() => handleOpenEditPlan(`${year}${txtMonth}`)}>แก้ไข</Button>
+                                                    <Button variant='contained' size='small'>แจกจ่าย</Button>
                                                 </Stack>
-                                                <Stack>
-                                                    <div className='bg-blue-500 text-white px-2 rounded-lg pt-1 pb-2'>
-                                                        แจกจ่าย
-                                                    </div>
-                                                </Stack>
-                                            </Stack>
-                                            <Stack direction={'row'} justifyContent={'space-between'}>
-                                                <Stack direction={'row'} gap={2}>
-                                                    <CircleIcon className='text-green-500' />
-                                                    <Typography>REV : XX</Typography>
-                                                </Stack>
-                                                <Typography>{moment().format('DD/MM/YYYY')}</Typography>
-                                            </Stack>
-                                        </Stack>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        })
-                    }
+                                            </TableCell>
+                                        </TableRow>
+                                        // return <Grid item xs={4} onClick={() => handleOpenEditPlan(`${year}${txtMonth}`)}>
+                                        //     <Card>
+                                        //         <CardContent>
+                                        //             <Stack gap={2}>
+                                        //                 <Stack direction={'row'} justifyContent={'space-between'}>
+                                        //                     <Stack direction={'column'}>
+                                        //                         <Typography className='font-bold'>{moment().month(txtMonth).format('MMMM').toUpperCase()}</Typography>
+                                        //                         <Typography variant='caption'>{
+                                        //                             _months[iMonth]
+                                        //                         }</Typography>
+                                        //                     </Stack>
+                                        //                     <Stack>
+                                        //                         <div className='bg-blue-500 text-white px-2 rounded-lg pt-1 pb-2'>
+                                        //                             แจกจ่าย
+                                        //                         </div>
+                                        //                     </Stack>
+                                        //                 </Stack>
+                                        //                 <Stack direction={'row'} justifyContent={'space-between'}>
+                                        //                     <Stack direction={'row'} gap={2}>
+                                        //                         <CircleIcon className='text-green-500' />
+                                        //                         <Typography>REV : XX</Typography>
+                                        //                     </Stack>
+                                        //                     <Typography>{moment().format('DD/MM/YYYY')}</Typography>
+                                        //                 </Stack>
+                                        //             </Stack>
+                                        //         </CardContent>
+                                        //     </Card>
+                                        // </Grid>
+                                    })
+                                }
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
                 </Grid>
             </Grid>
             <DialogEditPlan open={openDialogEditPlan} close={handleCloseDialogEditPlan} ym={ymSelected} />

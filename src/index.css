@@ -324,6 +324,11 @@ td:has(.bg-sale) {
   padding-left: 16px !important;
 }
 
+
+td:has(.bg-header-inventory-balance-pltype) {
+  padding-left: 16px !important;
+}
+
 td:has(.bg-sale-day) {
   background: rgb(255 206 133 / 55%);
 }
@@ -374,6 +379,22 @@ td:has(.bg-header-inventory) {
 td:has(.bg-header-inventory-day){
   background: #c9bbff;
 }
+
+
+td:has(.bg-header-inventory-balance-pltype-day){
+  background: #ae115d94 ;
+}
+td:has(.bg-header-inventory-balance-pltype-day-minus){
+  background:#ffb3b38f;
+}
+td:has(.bg-header-inventory-balance-pltype-total){
+  background:#f7bad4;
+} 
+tr:has(.bg-header-inventory-balance-pltype-empty){
+  background:  #eb96cd21  !important;
+}
+
+
 td:has(.bg-header-inventory-balance-day){
   background:  #dc2e7b63 ;
 }

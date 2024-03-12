@@ -9,7 +9,7 @@ import moment from 'moment'
 import { CircularProgress, Grid, MenuItem, Select, Stack, TextField, Typography } from '@mui/material'
 import { Column, Row, Id, MenuOption, CellChange, ReactGrid } from "@silevis/reactgrid";
 import { UkeCurPln } from '../interface'
-import { API_CHANGE_CURPLN, API_GET_CURPLN_BY_YM, API_GET_UKE_CUR_PLN } from '../Service'
+import { API_CHANGE_CURPLN, API_CHANGE_UKE_CURPLN, API_GET_CURPLN_BY_YM, API_GET_UKE_CUR_PLN } from '../Service'
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import SearchOutlinedIcon from '@mui/icons-material/SearchOutlined';
 function DialogEditPlan(props: any) {
@@ -19,6 +19,8 @@ function DialogEditPlan(props: any) {
     const [loading, setLoading] = useState<boolean>(true);
     const [wcno, setWcno] = useState<number[]>([]);
     const getPlan = (): UkeCurPln[] => [];
+    const [rowIdChange, setRowIdChange] = useState<number>(99999);
+    let once: boolean = true;
     let cols: any = [
         { columnId: "model", width: 200 },
         { columnId: "wcno", width: 150 },
@@ -54,6 +56,8 @@ function DialogEditPlan(props: any) {
     };
 
     const handleChanges = (changes: CellChange[]) => {
+        let rowId: number = changes[0].rowId;
+        setRowIdChange(rowId);
         changes.map((o, i) => {
             let newText = o.newCell.text;
             let oldText = o.previousCell.text;
@@ -129,7 +133,6 @@ function DialogEditPlan(props: any) {
     async function initData() {
         if (ym != '') {
             let res = await API_GET_CURPLN_BY_YM(ym);
-            console.log(res);
             if (Object.keys(res).length) {
                 setCurPln(res);
             } else {
@@ -183,12 +186,15 @@ function DialogEditPlan(props: any) {
             alert('ไม่พบข้อมูล YM ');
         }
     }
+
     useEffect(() => {
         if (curpln.length > 0) {
             setLoading(false);
         }
     }, [curpln]);
-
+    async function handleRowChange() {
+        let res = await API_CHANGE_UKE_CURPLN(curpln[rowIdChange]);
+    }
     async function handleSavePlan() {
         let save = await API_CHANGE_CURPLN(curpln);
         if (save.status) {
@@ -236,8 +242,8 @@ function DialogEditPlan(props: any) {
                                     helperText="Please select your line"
                                 >
                                     {
-                                        ['ALL', '1YC', '2YC', 'SCR', 'ODM'].map(oGroup => {
-                                            return <MenuItem value={oGroup}>{oGroup}</MenuItem>
+                                        ['ALL', '1YC', '2YC', 'SCR', 'ODM'].map((oGroup,iGroup) => {
+                                            return <MenuItem key={iGroup} value={oGroup}>{oGroup}</MenuItem>
                                         })
                                     }
                                 </TextField>
@@ -253,7 +259,7 @@ function DialogEditPlan(props: any) {
 
                                 <div className='wrapper'>
                                     <ReactGrid
-                                        id = "tbAdjPlan"
+                                        id="tbAdjPlan"
                                         stickyTopRows={1}
                                         rows={rows}
                                         columns={columns}

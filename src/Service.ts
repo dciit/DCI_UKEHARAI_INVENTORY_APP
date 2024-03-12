@@ -83,7 +83,7 @@ export function API_GET_MASTER(objCode = '') {
 }
 
 export function API_ADJUST_INVENTORY_MAIN(param: any) {
-    console.log(param)
+    // console.log(param)
     return new Promise(resolve => {
         http.post(`/ukeharai/adjustInventoryMain`, param).then((res) => {
             resolve(res.data);
@@ -96,4 +96,26 @@ export function API_GET_ADJUST_INVENTORY_MAIN(param: any) {
             resolve(res.data);
         })
     })
+}
+
+export function API_CHANGE_UKE_CURPLN(param: any) {
+    return new Promise<any>(resolve => {
+        http.post(`/change_uke_curpln`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export default function emptyCache(){
+    if('caches' in window){
+    caches.keys().then((names) => {
+            // Delete all the cache files
+            names.forEach(name => {
+                caches.delete(name);
+            })
+        });
+
+        // Makes sure the page reloads. Changes are only visible after you refresh.
+        window.location.reload();
+    }
 }

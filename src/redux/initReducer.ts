@@ -1,12 +1,12 @@
 const initialState = {
     login: false,
-    emp: ''
+    emp: '',
+    rev: 0
 }
 
 const IndexReducer = (state = initialState, action: any) => {
     switch (action.type) {
         case 'LOGIN':
-            console.log(action.payload.data)
             return {
                 ...state,
                 login: true,
@@ -18,6 +18,11 @@ const IndexReducer = (state = initialState, action: any) => {
             return {
                 ...state,
                 login: false
+            }
+        case 'SET_VERSION':
+            return {
+                ...state,
+                rev: action.payload
             }
         default:
             return state

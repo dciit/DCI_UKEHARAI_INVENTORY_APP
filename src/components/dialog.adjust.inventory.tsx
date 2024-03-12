@@ -11,7 +11,7 @@ import { useSelector } from 'react-redux'
 import { SaveAsOutlined } from '@mui/icons-material'
 import { EkbWipPartStock } from '../interface'
 function DialogAdjustInventoryMain(props: any) {
-    const empcode = useSelector((state: any) => state.reducer.emp.EmpCode);
+    const empcode = useSelector((state: any) => state.reducer.emp?.EmpCode);
     const { open, close, model } = props;
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);

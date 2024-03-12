@@ -38,7 +38,7 @@ export interface MActPlans {
     detail: string;
     begin: string;
     listActPln: MActPlan[];
-    listActFinal:MActPlan[];
+    listActFinal: MActPlan[];
     listCurpln: ListCurpln[];
     listSaleForecast: ListSaleForecast[];
     listInbound: ListInbound[];
@@ -47,6 +47,7 @@ export interface MActPlans {
     listActMain: MActMain[];
     listLastInventory: LastInventory[];
     listHoldInventory: HoldInventory[];
+    listPDTInventory: HoldInventory[];
     lastInventoryMain: MLastInventoryMain;
     lastInventory: number;
     d01: number;

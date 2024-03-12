@@ -60,6 +60,7 @@ const Index = () => {
         { key: 'Sales Plan&Forecast', bg: 'bg-orange', class: 'bg-sale', icon: false, iconColor: '' },
         { key: 'Total Inventory', bg: '', class: 'bg-header-inventory', icon: true, iconColor: 'text-purple-500' },
         { key: 'Inventory (Balance)', bg: '', class: 'bg-header-inventory-balance', icon: true, iconColor: 'text-pink-600' },
+        { key: 'Inventory Balance (Pltype)', bg: '', class: 'bg-header-inventory-balance-pltype', icon: false, iconColor: '' },
         { key: 'Inventory', bg: '', class: 'bg-inventory', icon: false, iconColor: '' },
         { key: 'Inventory (Warehouse)', bg: '', class: 'bg-inventory', icon: false, iconColor: '' },
         { key: 'Inventory Planning', bg: '', class: 'bg-inventory-planning', icon: true, iconColor: 'text-orange-600' },
@@ -120,6 +121,7 @@ const Index = () => {
             enableSorting: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
+            filterVariant: 'multi-select',
         },
         {
             accessorKey: 'wcno',
@@ -128,14 +130,16 @@ const Index = () => {
             enableSorting: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
-            filterVariant: 'multi-select',
-            Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
+            filterVariant: 'text',
+            Cell: ({ cell }) => {
+                return <span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>
+            }
         },
         {
             accessorKey: 'modelCode',
             header: 'Model',
             enableColumnOrdering: false,
-            size: 125,
+            size: 150,
             filterVariant: 'multi-select',
             Cell: ({ cell }) => (<span className='font-bold'>{cell.getValue()}</span>)
         },
@@ -207,6 +211,7 @@ const Index = () => {
             size: 125,
             enableColumnOrdering: false,
             enableSorting: false,
+            filterVariant: 'multi-select',
             muiTableBodyCellProps: ({
                 cell
             }) => ({
@@ -216,8 +221,6 @@ const Index = () => {
                 }
             }),
             Cell: ({ cell }) => {
-                // console.log(cell);
-                // console.log(data)
                 let LastInventory: number = cell.getValue() != '' ? parseInt(cell.getValue()) : 0;
                 let type = cell.row.original.type;
                 let lastInventoryMain = typeof cell.row.original.lastInventoryMain != 'undefined' ? cell.row.original.lastInventoryMain : [];
@@ -300,14 +303,14 @@ const Index = () => {
     );
     const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
     const [data, setData] = useState<Person[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [sorting, setSorting] = useState<MRT_SortingState>([]);
-    useEffect(() => {
-        if (once && typeof window !== 'undefined') {
-            initContent();
-            setOnce(false);
-        }
-    }, [once]);
+    // useEffect(() => {
+    // if (once && typeof window !== 'undefined') {
+    //     initContent();
+    //     setOnce(false);
+    // }
+    // }, [once]);
     useEffect(() => {
         if (data.length) {
             setIsLoading(false);
@@ -372,17 +375,17 @@ const Index = () => {
             </Button>
         )
     });
-    return <div className=' p-4'>
+    return <div  >
         <TabContext value={value}>
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }} >
-                <TabList onChange={handleChange} >
-                    <Tab icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" />
-                    <Tab icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" />
-                    <Tab icon={<ScatterPlotIcon />} iconPosition='start' label="Adjust Plan" value="3" />
+            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <TabList onChange={handleChange} className='bg-white'>
+                    <Tab className='py-0' icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" />
+                    <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" />
+                    {/* <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Adjust Plan" value="3" /> */}
                 </TabList>
             </Box>
             <TabPanel value="1">
-                <div className='group-search flex gap-2 px-4 py-4' >
+                <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
                     <div>
                         <Typography>Year</Typography>
                         <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
@@ -407,15 +410,23 @@ const Index = () => {
                     </div>
                     <div>
                         <Typography>&nbsp;</Typography>
-                        <Button startIcon={<SearchIcon />} variant='contained' size='small' onClick={initContent}>ค้นหา</Button>
+                        <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
                     </div>
                 </div>
-                <div className=' tb-ukeharai p-4'>
+                <div className=''>
                     {
-                        !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
+                        isLoading ? <Stack className='w-full ' alignItems={'center'} gap={1}>
                             <CircularProgress />
                             <Typography>กำลังโหลดข้อมูล</Typography>
-                        </Stack> : <MaterialReactTable table={table} />
+                        </Stack> : (
+                            !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
+                                <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{border:'1px solid #ddd'}}>
+                                    <Typography variant='h5'>ไม่พบข้อมูลที่คุณค้นหา</Typography>
+                                </div>
+                            </Stack> : <div className='tb-ukeharai'>
+                                <MaterialReactTable table={table} />
+                            </div>
+                        )
                     }
                 </div>
             </TabPanel>

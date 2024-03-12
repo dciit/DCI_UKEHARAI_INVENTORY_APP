@@ -233,6 +233,9 @@ export const initRowMainAssy = (data: MActPlans, wcno: number) => {
     Row.pltypeText = '';
     Row.detail = '';
     let total = 0;
+    // if (data.model == '1Y056BCBX1T#A') {
+    //     console.log(data.listActMain)
+    // }
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
 
@@ -309,7 +312,7 @@ export const initRowFinal = (data: MActPlans, wcno: number) => {
         lastInventory: 0
     };
     Row.model = (data.model.substring(0, 1) == '1' || data.model.substring(0, 1) == '2') ? (data.model.substring(0, 1) + 'YC') : (data.model.substring(0, 1) == 'J' ? 'SCR' : 'ODM');
-    Row.wcno =  wcno;
+    Row.wcno = wcno;
     Row.modelCode = data.model.toString();
     Row.sebango = data.sebango;
     Row.type = 'Result_Final Line';
@@ -406,19 +409,22 @@ export const initTotalTitleInbound = (data: MActPlans) => {
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
         let filterInbound = data.listInbound.filter(o => o.astDate.toString().substring(8, 10) == vDay);
+
         let sumInboundOfDay = 0;
         filterInbound.map((o, i) => {
             sumInboundOfDay += o.astQty;
-            sum += sumInboundOfDay;
+            if (o.astType == 'IN') {
+                sum += sumInboundOfDay;
+                Row[`d${vDay}`] = sumInboundOfDay;
+            } else {
+                // if (data.model == '2YC71DXD#A') {
+                //     console.log(sum, ((sumInboundOfDay * -1)))
+                // }
+                sum += (sumInboundOfDay * -1);
+                Row[`d${vDay}`] = (sumInboundOfDay * -1);
+            }
         })
-        // var index = data.listActPln.findIndex(o => o.prdymd == vDay);
-        // if (index != -1) {
-        Row[`d${vDay}`] = sumInboundOfDay;
-        //     total += data.listActPln[index].qty;
-        // }
-        // let t: any = data.listActMain;
-        // let CurrentVal: number = t[`day${vDay}`] != '' ? parseInt(t[`day${vDay}`]) : 0;
-        // Row[`d${vDay}`] = CurrentVal;
+
     });
     Row.total = sum.toString();
     return Row
@@ -996,7 +1002,7 @@ export const initRowPDTInventory = (data: MActPlans) => {
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
         if (dayLoop == moment().format('DD')) {
-            Row[`d${dayLoop}`] = data.listHoldInventory.length ? parseInt(data.listHoldInventory[0].balstk) : '';
+            Row[`d${dayLoop}`] = data.listPDTInventory.length ? parseInt(data.listPDTInventory[0].balstk) : '';
         }
     });
     Row.total = total.toLocaleString('en');
@@ -1268,7 +1274,7 @@ export const initRowInventoryPlanningMain = (data: MActPlans) => {
             Row[`d${dayLoop}`] = adjInventoryMain;
         } else {
             let PrevDay = (dayLoop - 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-            let numSaleOfDay = data.listSaleForecast.map(o => { return o[`d${dayLoop}`] }) | 0; // Get Value Sale
+            let numSaleOfDay = data.listSaleForecast.map(o => { return o[`d${dayLoop}`] }).reduce(function (a, b) { return a + b; }, 0); // Get Value Sale
             let rInventoryMainPrevOneDay = data.listActMain.filter(o => o.shiftDate.substring(8, 11) == PrevDay); // Array Inventory Main -1 Day 
             let valInventory = 0;
             if (rInventoryMainPrevOneDay.length) {
@@ -1279,6 +1285,9 @@ export const initRowInventoryPlanningMain = (data: MActPlans) => {
                 InventoryHold = data.listHoldInventory[0].balstk;
             }
             // console.log(`DAY : ${dayLoop} sum : ${adjInventoryMain} , inv main - 1 day : ${valInventory} Inv hold : ${InventoryHold}  |||   sale : ${numSaleOfDay}`)
+            // if(data.model == '1Y056BCBX1T#A'){
+            //     console.log(  )
+            // }
             adjInventoryMain = (parseInt(adjInventoryMain) + parseInt(valInventory) + parseInt(InventoryHold)) - parseInt(numSaleOfDay);
             let InventoryPlanning = adjInventoryMain;
             Row[`d${dayLoop}`] = InventoryPlanning;
@@ -1348,7 +1357,6 @@ export const initRowInventoryBalance = (data: MActPlans) => {
         listHoldInventory: [],
         lastInventoryMain: undefined
     };
-    // let oInventory: MInventory[] = data.listInventory.filter(o => o.pltype == pltype && o.model == data.model);
     Row.model = (data.model.substring(0, 1) == '1' || data.model.substring(0, 1) == '2') ? (data.model.substring(0, 1) + 'YC') : (data.model.substring(0, 1) == 'J' ? 'SCR' : 'ODM');
     Row.wcno = data.wcno;
     Row.modelCode = data.model.toString();
@@ -1377,23 +1385,98 @@ export const initRowInventoryBalance = (data: MActPlans) => {
         } else {
             Row[`d${dayLoop}`] = '';
         }
-        // let PrevDay = (dayLoop - 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        // let rSaleOfDay = data.listSaleForecast.map(o => { return o[`d${PrevDay}`] }); // Get Value Sale
-        // let nSaleOfDay = 0;
-        // if(rSaleOfDay){
-        //     nSaleOfDay = rSaleOfDay.reduce((a, b) => a + b);
-        // }
-        // console.log(`วันที่ ${dayLoop} การขายย้อนหลัง 1 วัน ${PrevDay} = ${nSaleOfDay}`);
-        // console.log(rSaleOfDay)
-        // let filterInventory = data.listInventory.filter((o: MInventory) => o.date.substring(8,11) == dayLoop).map(o => o.cnt);
-        // let sumInventoryOfDay = 0;
-        // filterInventory.map(o => {
-        //     sumInventoryOfDay += parseFloat(o);
-        // });
-        // // total += sumInventoryOfDay;
-        // numInventoryBalance += (sumInventoryOfDay - nSaleOfDay);
-        // console.log(numInventoryBalance)
+    });
+    Row.total = numInventoryBalance.toLocaleString('en');
+    return Row
+}
 
+
+export const initRowInventoryBalancePltype = (data: MActPlans,oInventory:MInventory) => {
+    const Row: MActPlans = {
+        ym: '',
+        model: '',
+        modelCode: '',
+        line: '',
+        wcno: '',
+        sebango: '',
+        listActPln: [],
+        listCurpln: [],
+        listSaleForecast: [],
+        listInbound: [],
+        listPltype: [],
+        listInventory: [],
+        listActMain: [],
+        type: '',
+        customer: '',
+        pltype: '',
+        pltypeText: '',
+        menuAuto: '',
+        detail: '',
+        begin: '',
+        d01: 0,
+        d02: 0,
+        d03: 0,
+        total: '0',
+        d04: 0,
+        d05: 0,
+        d06: 0,
+        d07: 0,
+        d08: 0,
+        d09: 0,
+        d10: 0,
+        d11: 0,
+        d12: 0,
+        d13: 0,
+        d14: 0,
+        d15: 0,
+        d16: 0,
+        d17: 0,
+        d18: 0,
+        d19: 0,
+        d20: 0,
+        d21: 0,
+        d22: 0,
+        d23: 0,
+        d24: 0,
+        d25: 0,
+        d26: 0,
+        d27: 0,
+        d28: 0,
+        d29: 0,
+        d30: 0,
+        d31: 0,
+        listLastInventory: [],
+        listHoldInventory: [],
+        lastInventoryMain: undefined
+    };
+    let pltype = oInventory.pltype;
+    Row.model = (data.model.substring(0, 1) == '1' || data.model.substring(0, 1) == '2') ? (data.model.substring(0, 1) + 'YC') : (data.model.substring(0, 1) == 'J' ? 'SCR' : 'ODM');
+    Row.wcno = data.wcno;
+    Row.modelCode = data.model.toString();
+    Row.sebango = data.sebango;
+    Row.type = 'Inventory Balance (Pltype)';
+    Row.customer = '';
+    Row.pltype = pltype;
+    Row.pltypeText = '';
+    Row.detail = '';
+    Row.menuAuto = '';
+    let numInventoryBalance = 0;
+    [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
+        var dayNow = moment().format('DD');
+        var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
+        if (dayLoop >= dayNow) {
+            let filterInventory: string[] = data.inventory.filter((o: MInventory) => o.date.substring(8, 11) == dayLoop && o.pltype == pltype).map(o => o.cnt);
+            if (filterInventory.length) {
+                let sumInventoryOfDay = filterInventory.length ? filterInventory.reduce((a, b) => parseInt(a) + parseInt(b)) : 0;
+                numInventoryBalance += sumInventoryOfDay;
+            }
+            let rSalePrevDay: number[] = data.listSaleForecast.filter(item =>item.pltype == pltype).map(o => { return o[`d${dayLoop}`]; });
+            let sumSalePrevDay = rSalePrevDay.length ? rSalePrevDay.reduce((a, b) => a + b) : 0;
+            numInventoryBalance -= sumSalePrevDay;
+            Row[`d${dayLoop}`] = numInventoryBalance;
+        } else {
+            Row[`d${dayLoop}`] = '';
+        }
     });
     Row.total = numInventoryBalance.toLocaleString('en');
     return Row

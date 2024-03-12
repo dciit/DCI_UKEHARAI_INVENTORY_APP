@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { faker } from '@faker-js/faker';
 import { ListCurpln, MActPlans, MInventory } from './interface';
-import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryPlanning, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -33,31 +33,16 @@ export const initData = (data: MActPlans[], year: string) => {
                 dummyData.push(initRowSale(oData, oSale));
             }
         })
-        // oData.listPltype.map((pltype: string) => {
-        //     let oSales: ListSaleForecast[] = oData.listSaleForecast.filter(o => o.pltype == pltype && o.modelName == oData.model);
-        //     oSales.map((oSale: ListSaleForecast) => {
-        //         let haveSale = false;
-        //         [...Array(31)].map((o: number, i: number) => {
-        //             if (oSale[`d${(i + 1).toLocaleString('en', { minimumIntegerDigits: 2, useGrouping: false })}`] > 0) {
-        //                 haveSale = true;
-        //             }
-        //         });
-        //         if (haveSale) {
-        //             dummyData.push(initRowSale(oData, oSale, pltype, oSale.customer));
-        //         }
-        //     })
-        // });
         dummyData.push(initRowTitleTotalInventory(oData));
         oData.inventory.map((oInventory: MInventory) => {
             dummyData.push(initRowInventory(oData, oInventory, year));
         });
-        // oData.listPltype.map((pltype: string) => {
-        //     let oInventory: MInventory[] = oData.listInventory.filter(o => o.pltype == pltype && o.model == oData.model);
-        //     if (oInventory.length) {
-        //         dummyData.push(initRowInventory(oData, oInventory, pltype));
-        //     }
-        // });
         dummyData.push(initRowInventoryBalance(oData));
+        oData.inventory.map((oInventory: MInventory) => {
+            dummyData.push(initRowInventoryBalancePltype(oData,oInventory));
+        });
+
+
         dummyData.push(initTotalTitleInbound(oData));
         oData.listCurpln.map((oCurpln: ListCurpln) => {
             dummyData.push(initRowCurPln(oData, oCurpln));
@@ -65,15 +50,6 @@ export const initData = (data: MActPlans[], year: string) => {
             dummyData.push(initRowFinal(oData,oCurpln.wcno));
         });
         dummyData.push(initRowTotalCurPlnAllLine(oData));
-        // oData.listPltype.map((pltype: string) => {
-        //     let haveInbound = oData.listInbound.filter(o => o.pltype == pltype && o.model == oData.model);
-        //     if (Object.keys(haveInbound).length) {
-        //         dummyData.push(initTotalInbound(oData, pltype));
-        //     }
-        // });
-        // dummyData.push(initRowCurPln(oData));
-        // dummyData.push(initRowMainAssy(oData));
-        // dummyData.push(initRowFinal(oData));
         dummyData.push(initRowHoldInventory(oData))
         dummyData.push(initRowPDTInventory(oData))
         dummyData.push(initRowInventoryPlanning(oData));

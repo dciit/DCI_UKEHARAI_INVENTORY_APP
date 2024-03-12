@@ -5,7 +5,6 @@ import ToolbarComponent from "./components/toolbarComponent";
 import Login from "./pages/login";
 function Layout() {
     const reducer = useSelector((state: any) => state.reducer);
-    console.log(reducer)
     let oLogin = false;
     if (typeof reducer.login !== 'undefined') {
         oLogin = reducer.login;

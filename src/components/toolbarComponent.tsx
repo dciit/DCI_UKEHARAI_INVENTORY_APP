@@ -24,7 +24,7 @@ function ToolbarComponent() {
         }
     }
     return (
-        <div className='h-[75px] bg-[#f6f8fa]' style={{ borderBottom: '1px solid #ddd' }}>
+        <div className='h-[75px] bg-white' style={{ borderBottom: '1px solid #ddd' }}>
             <Stack direction={'row'} justifyContent={'space-between'} px={3} className='h-full' alignContent={'center'}>
                 <Stack direction={'row'} alignItems={'center'} spacing={3}>
                     {/* <Stack className='cursor-pointer'>
