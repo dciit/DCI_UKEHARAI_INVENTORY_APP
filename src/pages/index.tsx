@@ -65,6 +65,7 @@ const Index = () => {
         { key: 'Inventory (Warehouse)', bg: '', class: 'bg-inventory', icon: false, iconColor: '' },
         { key: 'Inventory Planning', bg: '', class: 'bg-inventory-planning', icon: true, iconColor: 'text-orange-600' },
         { key: 'Inventory Planning (Main)', bg: '', class: 'bg-inventory-planning-main', icon: true, iconColor: 'text-orange-700' },
+        { key: 'Inventory Planning (Final)', bg: '', class: 'bg-inventory-planning-final', icon: true, iconColor: 'text-orange-700' },
         { key: 'Inventory (Hold)', bg: '', class: 'bg-inventory-hold', icon: true, iconColor: 'text-yellow-500' },
         { key: 'Inventory (PDT)', bg: '', class: 'bg-inventory-pdt', icon: true, iconColor: 'text-yellow-500' },
         { key: 'Total Current Plan', bg: '', class: 'bg-total-current-all-line', icon: true, iconColor: 'text-green-600' },
@@ -122,6 +123,9 @@ const Index = () => {
             enableColumnFilters: false,
             enableColumnOrdering: false,
             filterVariant: 'multi-select',
+            Cell: ({ cell }) => {
+                return <span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>
+            }
         },
         {
             accessorKey: 'wcno',
@@ -224,7 +228,7 @@ const Index = () => {
                 let LastInventory: number = cell.getValue() != '' ? parseInt(cell.getValue()) : 0;
                 let type = cell.row.original.type;
                 let lastInventoryMain = typeof cell.row.original.lastInventoryMain != 'undefined' ? cell.row.original.lastInventoryMain : [];
-                if (type == 'Inventory Planning (Main)') {
+                if (type == 'Inventory Planning (Main)' || type == 'Inventory Planning (Final)') {
                     let mainResult: number = lastInventoryMain?.bal | 0;
                     return <Button variant='contained' size='small' onClick={() => handleOpenAdjStockMain(cell)}>Adj.Main ({mainResult.toLocaleString('en')})</Button>
                 } else if (type == 'Inventory Planning') {
@@ -328,6 +332,7 @@ const Index = () => {
     async function initContent() {
         setIsLoading(true);
         const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
+        console.log(res)
         let data: any = initData(res.content, _year);
         setData(data);
     }
@@ -356,7 +361,7 @@ const Index = () => {
         columnVirtualizerOptions: { overscan: 1 },
         muiTableBodyRowProps: { hover: false },
         initialState: {
-            columnPinning: { left: ['modelCode', 'type'] },
+            columnPinning: { left: ['modelCode', 'sebango', 'type'] },
             showGlobalFilter: true,
             density: 'compact'
         },
@@ -375,16 +380,15 @@ const Index = () => {
             </Button>
         )
     });
-    return <div  >
-        <TabContext value={value}>
+    return <div className='p-6' >
+        <TabContext value={value} >
             <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <TabList onChange={handleChange} className='bg-white'>
+                <TabList onChange={handleChange} className='bg-white' >
                     <Tab className='py-0' icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" />
                     <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" />
-                    {/* <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Adjust Plan" value="3" /> */}
                 </TabList>
             </Box>
-            <TabPanel value="1">
+            <TabPanel value="1" className='px-0 pt-3'>
                 <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
                     <div>
                         <Typography>Year</Typography>
@@ -413,15 +417,17 @@ const Index = () => {
                         <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
                     </div>
                 </div>
-                <div className=''>
+                <div >
                     {
-                        isLoading ? <Stack className='w-full ' alignItems={'center'} gap={1}>
-                            <CircularProgress />
-                            <Typography>กำลังโหลดข้อมูล</Typography>
-                        </Stack> : (
+                        isLoading ? <div className='bg-white rounded-lg pt-6 pb-3' style={{borderWidth:'1px',borderColor:'divider'}}>
+                            <Stack className='w-full' alignItems={'center'} gap={1}>
+                                <CircularProgress />
+                                <Typography>กำลังโหลดข้อมูล</Typography>
+                            </Stack>
+                        </div> : (
                             !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
-                                <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{border:'1px solid #ddd'}}>
-                                    <Typography variant='h5'>ไม่พบข้อมูลที่คุณค้นหา</Typography>
+                                <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{ border: '1px solid #ddd' }}>
+                                    <Typography >ไม่พบข้อมูลที่คุณค้นหา</Typography>
                                 </div>
                             </Stack> : <div className='tb-ukeharai'>
                                 <MaterialReactTable table={table} />

@@ -17,6 +17,7 @@ const Routers = () => {
             localStorage.clear();
             emptyCache();
             persistor.purge();
+            dispatch({ type: 'RESET' });
             dispatch({ type: 'SET_VERSION', payload: VER });
             location.reload();
         }

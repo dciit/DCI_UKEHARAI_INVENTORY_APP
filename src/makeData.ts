@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { faker } from '@faker-js/faker';
-import { ListCurpln, MActPlans, MInventory } from './interface';
-import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { InventoryBalancePltype, ListCurpln, MActPlans, MInventory } from './interface';
+import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningFinal, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -37,23 +37,33 @@ export const initData = (data: MActPlans[], year: string) => {
         oData.inventory.map((oInventory: MInventory) => {
             dummyData.push(initRowInventory(oData, oInventory, year));
         });
+        // if(oData.model == '1Y115BKAX1N#A'){
+        //     console.log(oData);
+        // }
         dummyData.push(initRowInventoryBalance(oData));
-        oData.inventory.map((oInventory: MInventory) => {
-            dummyData.push(initRowInventoryBalancePltype(oData,oInventory));
-        });
+        oData.inventoryBalancePltype.map((oInventoryBalancePltype: InventoryBalancePltype) => {
+            dummyData.push(initRowInventoryBalancePltype(oData, oInventoryBalancePltype));
+        })
+        // oData.inventory.map((oInventory: MInventory) => {
+        //     dummyData.push(initRowInventoryBalancePltype(oData,oInventory));
+        // });
 
 
         dummyData.push(initTotalTitleInbound(oData));
         oData.listCurpln.map((oCurpln: ListCurpln) => {
             dummyData.push(initRowCurPln(oData, oCurpln));
-            dummyData.push(initRowMainAssy(oData,oCurpln.wcno));
-            dummyData.push(initRowFinal(oData,oCurpln.wcno));
+            dummyData.push(initRowMainAssy(oData, oCurpln.wcno));
+            dummyData.push(initRowFinal(oData, oCurpln.wcno));
         });
         dummyData.push(initRowTotalCurPlnAllLine(oData));
         dummyData.push(initRowHoldInventory(oData))
         dummyData.push(initRowPDTInventory(oData))
         dummyData.push(initRowInventoryPlanning(oData));
-        dummyData.push(initRowInventoryPlanningMain(oData));
+        if (oData.modelGroup == 'ODM') {
+            dummyData.push(initRowInventoryPlanningFinal(oData));
+        } else {
+            dummyData.push(initRowInventoryPlanningMain(oData));
+        }
         dummyData.push(initRowEmpty());
     })
     return dummyData;

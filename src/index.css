@@ -356,6 +356,24 @@ td:has(.bg-inventory-planning-main-day){
   font-weight: bold;
 }
 
+td:has(.bg-inventory-planning-final){
+  background:#fd9e5b !important;
+}
+tr:has(.bg-inventory-planning-final){
+  background:#ffc79e !important;
+}
+td:has(.bg-inventory-planning-final-total){
+  background:#ff954a !important;
+  font-weight: bold !important;
+}
+td:has(.bg-inventory-planning-final-day){
+  background:#ff954a !important;
+}
+
+.bg-inventory-planning-final {
+  font-weight: bold;
+}
+
 td:has(.bg-inventory-planning),
 td:has(.bg-inventory-planning-day) {
   background: #ff8228b5;
@@ -537,4 +555,17 @@ table#tbAdjPlan {
 }
 #box-edit-plan .rg-pane-top .rg-header-cell{
   color: white !important;
+}
+
+
+table#tbGroupModel, table#tbGroupModel td,  table#tbGroupModel th {
+  border: 1px solid;
+}
+table#tbGroupModel td {
+  padding: 4px; 
+  padding-right: 8px;
+}
+table#tbGroupModel {
+  width: 100%;
+  border-collapse: collapse;
 }

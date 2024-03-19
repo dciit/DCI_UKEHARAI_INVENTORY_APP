@@ -35,7 +35,6 @@ function Login() {
             setUserReq(false);
             setPwdReq(false);
             axios.get('http://websrv01.dci.daikin.co.jp/BudgetCharts/BudgetRestService/api/authen?username=' + user + '&password=' + encodeURIComponent(pwd)).then((res) => {
-                console.log(res)
                 if (res.data[0]?.FullName != null) {
                     persistor.purge();
                     dispatch({ type: 'LOGIN', payload: { login: true, data: res.data[0] } });

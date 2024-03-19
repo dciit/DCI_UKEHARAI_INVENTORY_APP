@@ -24,6 +24,8 @@ export interface MGetActPlan {
 }
 
 export interface MActPlans {
+    modelGroup:string;
+    sbu: string;
     ym: string;
     model: string;
     modelCode: string;
@@ -50,6 +52,8 @@ export interface MActPlans {
     listPDTInventory: HoldInventory[];
     lastInventoryMain: MLastInventoryMain;
     lastInventory: number;
+    inventoryBalance:  InventoryBalance[];
+    inventoryBalancePltype: InventoryBalancePltype[];
     d01: number;
     d02: number;
     d03: number;
@@ -82,6 +86,18 @@ export interface MActPlans {
     d30: number;
     d31: number;
     total: string;
+}
+
+export interface InventoryBalancePltype {
+    modelName: string;
+    pltype:    string;
+    data:      InventoryBalance[];
+}
+
+
+export interface InventoryBalance {
+    value: number;
+    date:  string;
 }
 
 export interface MLastInventoryMain {
@@ -311,3 +327,4 @@ export interface MGetUkeCurPln {
     year?: string;
     model: string;
 }
+

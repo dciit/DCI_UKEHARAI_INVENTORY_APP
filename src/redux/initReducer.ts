@@ -24,6 +24,8 @@ const IndexReducer = (state = initialState, action: any) => {
                 ...state,
                 rev: action.payload
             }
+        case 'RESET':
+            return initialState
         default:
             return state
     }
