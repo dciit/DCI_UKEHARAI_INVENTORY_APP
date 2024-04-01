@@ -1,7 +1,11 @@
-const initialState = {
+import { MInitialState } from "../interface"
+
+const initialState: MInitialState = {
     login: false,
     emp: '',
-    rev: 0
+    rev: 0,
+    privilege: [],
+    menuActive: 'home',
 }
 
 const IndexReducer = (state = initialState, action: any) => {
@@ -17,6 +21,7 @@ const IndexReducer = (state = initialState, action: any) => {
         case 'LOGOUT':
             return {
                 ...state,
+                menuActive:'home',
                 login: false
             }
         case 'SET_VERSION':
@@ -26,6 +31,17 @@ const IndexReducer = (state = initialState, action: any) => {
             }
         case 'RESET':
             return initialState
+        case 'SET_PRIVILEGE':
+            return {
+                ...state,
+                privilege: action.payload
+            }
+        case 'MENU_ACTIVE':
+            console.log(action.payload)
+            return {
+                ...state,
+                menuActive: action.payload
+            }
         default:
             return state
     }

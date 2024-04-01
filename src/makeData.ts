@@ -1,7 +1,7 @@
 //@ts-nocheck
 import { faker } from '@faker-js/faker';
 import { InventoryBalancePltype, ListCurpln, MActPlans, MInventory } from './interface';
-import { initRowCurPln, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningFinal, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { initRowCurPln, initRowDelivery, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningFinal, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -23,7 +23,7 @@ export type Person = {
 };
 
 
-export const initData = (data: MActPlans[], year: string) => {
+export const initData = (data: MActPlans[], year: string, ym: string) => {
     const dummyData: MActPlans[] = [];
     data.map((oData: MActPlans) => {
         dummyData.push(initRowTotalSale(oData));
@@ -32,24 +32,25 @@ export const initData = (data: MActPlans[], year: string) => {
             if (haveSale != 31) {
                 dummyData.push(initRowSale(oData, oSale));
             }
-        })
+        });
+        oData.listSaleForecast.map((oSale) => {
+            let haveSale: number | string = Object.values(oSale).filter((o, i) => o == 0).length;
+            if (haveSale != 31) {
+                dummyData.push(initRowDelivery(oData, oSale));
+            }
+        });
         dummyData.push(initRowTitleTotalInventory(oData));
         oData.inventory.map((oInventory: MInventory) => {
             dummyData.push(initRowInventory(oData, oInventory, year));
         });
+        dummyData.push(initRowInventoryBalance(oData)); // คำนวนผ่าน API
         // if(oData.model == '1Y115BKAX1N#A'){
-        //     console.log(oData);
+        //     console.log(oData.warning)
         // }
-        dummyData.push(initRowInventoryBalance(oData));
         oData.inventoryBalancePltype.map((oInventoryBalancePltype: InventoryBalancePltype) => {
-            dummyData.push(initRowInventoryBalancePltype(oData, oInventoryBalancePltype));
+            dummyData.push(initRowInventoryBalancePltype(oData, oInventoryBalancePltype)); // คำนวนผ่าน API
         })
-        // oData.inventory.map((oInventory: MInventory) => {
-        //     dummyData.push(initRowInventoryBalancePltype(oData,oInventory));
-        // });
-
-
-        dummyData.push(initTotalTitleInbound(oData));
+        dummyData.push(initTotalTitleInbound(oData, ym));
         oData.listCurpln.map((oCurpln: ListCurpln) => {
             dummyData.push(initRowCurPln(oData, oCurpln));
             dummyData.push(initRowMainAssy(oData, oCurpln.wcno));
@@ -58,7 +59,7 @@ export const initData = (data: MActPlans[], year: string) => {
         dummyData.push(initRowTotalCurPlnAllLine(oData));
         dummyData.push(initRowHoldInventory(oData))
         dummyData.push(initRowPDTInventory(oData))
-        dummyData.push(initRowInventoryPlanning(oData));
+        dummyData.push(initRowInventoryPlanning(oData, ym)); // คำนวนผ่าน API
         if (oData.modelGroup == 'ODM') {
             dummyData.push(initRowInventoryPlanningFinal(oData));
         } else {

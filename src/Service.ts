@@ -1,6 +1,7 @@
 
 import Axios from "axios";
 import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln } from "./interface";
+
 const http = Axios.create({
     baseURL: import.meta.env.VITE_API,
     headers: {
@@ -8,6 +9,26 @@ const http = Axios.create({
         // 'Authorization': 'Bearer ' + localStorage.getItem('jwt')
     }
 });
+
+const httpHR = Axios.create({
+    baseURL: import.meta.env.VITE_API_HR,
+    headers: {
+        'Content-Type': 'application/json;charset=UTF-8;json/html; charset=UTF-8',
+        // 'Authorization': 'Bearer ' + localStorage.getItem('jwt')
+    }
+});
+
+
+
+export function API_GET_WARNING(ymd: string) {
+    return new Promise<any>(resolve => {
+        http.post(`/warning/get`, {
+            ym: ymd
+        }).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
 
 export function API_INIT_ACT_PLAN(ymd: string) {
     return new Promise<MGetActPlan>(resolve => {
@@ -106,9 +127,9 @@ export function API_CHANGE_UKE_CURPLN(param: any) {
     })
 }
 
-export default function emptyCache(){
-    if('caches' in window){
-    caches.keys().then((names) => {
+export default function emptyCache() {
+    if ('caches' in window) {
+        caches.keys().then((names) => {
             // Delete all the cache files
             names.forEach(name => {
                 caches.delete(name);
@@ -118,4 +139,13 @@ export default function emptyCache(){
         // Makes sure the page reloads. Changes are only visible after you refresh.
         window.location.reload();
     }
+}
+export function API_PRIVILEGE(module = '', component = '') {
+    return new Promise(resolve => {
+        httpHR.get(`/privilege/${module}/${component}`).then((res) => {
+            resolve(res.data);
+        }).catch(() => {
+            resolve([]);
+        })
+    })
 }

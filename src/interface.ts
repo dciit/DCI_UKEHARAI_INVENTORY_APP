@@ -24,7 +24,7 @@ export interface MGetActPlan {
 }
 
 export interface MActPlans {
-    modelGroup:string;
+    modelGroup: string;
     sbu: string;
     ym: string;
     model: string;
@@ -52,8 +52,11 @@ export interface MActPlans {
     listPDTInventory: HoldInventory[];
     lastInventoryMain: MLastInventoryMain;
     lastInventory: number;
-    inventoryBalance:  InventoryBalance[];
+    inventoryBalance: InventoryBalance[];
     inventoryBalancePltype: InventoryBalancePltype[];
+    listInventoryPlanning: MData[];
+    listSaleForeCaseAllCustomer: MData[];
+    warning: boolean; // สำหรับหน้า Warning 1 = Inventory balance ติดลบ 
     d01: number;
     d02: number;
     d03: number;
@@ -87,17 +90,20 @@ export interface MActPlans {
     d31: number;
     total: string;
 }
-
+export interface MData {
+    value: number;
+    date: string;
+}
 export interface InventoryBalancePltype {
     modelName: string;
-    pltype:    string;
-    data:      InventoryBalance[];
+    pltype: string;
+    data: InventoryBalance[];
 }
 
 
 export interface InventoryBalance {
     value: number;
-    date:  string;
+    date: string;
 }
 
 export interface MLastInventoryMain {
@@ -328,3 +334,32 @@ export interface MGetUkeCurPln {
     model: string;
 }
 
+export interface MInitialState {
+    login: boolean;
+    emp: string;
+    rev: number;
+    privilege: MDCIPrivilege[];
+    menuActive: string;
+}
+export interface MDCIPrivilege {
+    privId: number;
+    privModule: string;
+    privComponent: string;
+    privAction: string;
+    privRef: string;
+    privVal: string;
+    privStatus: string;
+    privCreateDate: Date;
+    privUpdateDate: Date;
+}
+export interface MNavMenu {
+    txt: string;
+    key: string;
+    type: string;
+    icon?: any;
+    path?: string;
+}
+
+export interface MContext {
+    navMenu: MNavMenu[];
+}

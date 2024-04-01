@@ -12,7 +12,7 @@ import { API_INIT_ACT_PLAN } from '../Service';
 import moment from 'moment';
 import { Box, Button, CircularProgress, MenuItem, Select, Stack, Tab, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { MGetActPlan, MTitle } from '../interface';
+import { MActPlans, MGetActPlan, MTitle } from '../interface';
 import DialogAdjustInventoryMain from '../components/dialog.adjust.inventory';
 import CircleIcon from '@mui/icons-material/Circle';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -22,15 +22,21 @@ import ScatterPlotIcon from '@mui/icons-material/ScatterPlot';
 import PageAdjustPlan from './ukeharai.adjust.plan';
 import { mkConfig, generateCsv, download } from 'export-to-csv';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-const csvConfig = mkConfig({
-    fieldSeparator: ',',
-    decimalSeparator: '.',
-    useKeysAsHeaders: true,
-});
+import ExportToExcel from '../components/export.xlxs';
+import { DashboardCustomizeOutlined } from '@mui/icons-material';
 const Index = () => {
+    const [filename, setFileName] = useState<string>('');
+    const csvConfig = mkConfig({
+        fieldSeparator: ',',
+        filename: filename,
+        decimalSeparator: '.',
+        useKeysAsHeaders: true,
+    });
     const [_year, setYear] = useState<string>(moment().format('YYYY'));
     const [_years] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
     const [_month, setMonth] = useState<number>(parseInt(moment().format('MM')) - 1);
+
+    const _ym = `${moment().format('YYYY')}${moment().format('MM')}`
     const [_months] = useState<string[]>([
         "มกราคม",
         "กุมภาพันธ์",
@@ -111,6 +117,7 @@ const Index = () => {
             size: 125,
             enableSorting: false,
             enableColumnFilters: false,
+            enableColumnActions: false,
             enableColumnOrdering: false,
             filterVariant: 'multi-select',
             Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
@@ -121,6 +128,7 @@ const Index = () => {
             size: 100,
             enableSorting: false,
             enableColumnFilters: false,
+            enableColumnActions: false,
             enableColumnOrdering: false,
             filterVariant: 'multi-select',
             Cell: ({ cell }) => {
@@ -132,6 +140,7 @@ const Index = () => {
             header: 'Line',
             size: 75,
             enableSorting: false,
+            enableColumnActions: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
             filterVariant: 'text',
@@ -142,7 +151,9 @@ const Index = () => {
         {
             accessorKey: 'modelCode',
             header: 'Model',
+            enableSorting: false,
             enableColumnOrdering: false,
+            enableColumnActions: false,
             size: 150,
             filterVariant: 'multi-select',
             Cell: ({ cell }) => (<span className='font-bold'>{cell.getValue()}</span>)
@@ -153,6 +164,7 @@ const Index = () => {
             size: 100,
             filterVariant: 'multi-select',
             enableSorting: false,
+            enableColumnActions: false,
             enableColumnFilters: false,
             enableColumnOrdering: false,
             Cell: ({ cell }) => (<span className='font-bold w-full text-right pr-2'>{cell.getValue()}</span>)
@@ -161,6 +173,7 @@ const Index = () => {
             accessorKey: 'type',
             header: 'Type',
             size: '200',
+            enableColumnActions: false,
             enableColumnOrdering: false,
             enableSorting: false,
             filterVariant: 'multi-select',
@@ -196,6 +209,7 @@ const Index = () => {
             enableSorting: false,
             size: 100,
             filterVariant: 'multi-select',
+            enableColumnActions: false,
             enableColumnOrdering: false,
             muiTableBodyCellProps: ({
                 cell
@@ -213,6 +227,7 @@ const Index = () => {
             accessorKey: 'pltype',
             header: 'Pallet Type',
             size: 125,
+            enableColumnActions: false,
             enableColumnOrdering: false,
             enableSorting: false,
             filterVariant: 'multi-select',
@@ -246,11 +261,12 @@ const Index = () => {
             header: `${kDay}`,
             size: 55,
             enableSorting: false,
-            enableFilters: false,
+            enableFilters: true,
             enableColumnOrdering: false,
             enableColumnFilter: false,
             enableColumnFilterModes: false,
             showColumnFilters: false,
+            enableColumnActions: false,
             Cell: ({ cell }) => {
                 let type: string = cell.row.original.type;
                 let classs: string = '';
@@ -267,10 +283,6 @@ const Index = () => {
                     val = parseInt(cell.getValue());
                 }
                 return cell.getValue() != '' ? <span className={`${classs}-day${val > 0 ? '' : '-minus'} w-full pr-2 text-right font-bold ${val > 0 ? '' : 'text-red-600'}`}>
-                    {/* {val < 0 && <span className="relative flex h-1 w-1">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1 w-1 bg-red-600"></span>
-                    </span>} */}
                     {val.toLocaleString('en')}
                 </span> : <span className={`${classs}-empty`}></span>;
             }
@@ -279,13 +291,10 @@ const Index = () => {
     cols.push({
         accessorKey: `total`,
         header: `Total`,
-        enableSorting: false,
         size: 100,
-        enableFilters: false,
+        enableSorting: true,
         enableColumnOrdering: false,
-        enableColumnFilter: false,
-        enableColumnFilterModes: false,
-        showColumnFilters: false,
+        enableColumnActions: false,
         Cell: ({ cell }) => {
             let total: string = '0';
             try {
@@ -306,15 +315,9 @@ const Index = () => {
         [],
     );
     const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
-    const [data, setData] = useState<Person[]>([]);
+    const [data, setData] = useState<MActPlans[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [sorting, setSorting] = useState<MRT_SortingState>([]);
-    // useEffect(() => {
-    // if (once && typeof window !== 'undefined') {
-    //     initContent();
-    //     setOnce(false);
-    // }
-    // }, [once]);
     useEffect(() => {
         if (data.length) {
             setIsLoading(false);
@@ -332,117 +335,153 @@ const Index = () => {
     async function initContent() {
         setIsLoading(true);
         const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
-        console.log(res)
-        let data: any = initData(res.content, _year);
+        let data: any = initData(res.content, _year, _ym);
         setData(data);
     }
+    useEffect(() => {
+        if (filename != '') {
+            handleExportData()
+        }
+    }, [filename])
     const handleExportData = () => {
-        const csv = generateCsv(csvConfig)(data);
+        let exportData = [];
+        data.forEach(o => {
+            if (o.type != 'empty') {
+                let exportRow = {
+                    MODEL: o.modelCode,
+                    SEBANGO: o.sebango,
+                    TYPE: o.type,
+                    GROUPMODEL: o.model,
+                    SBU: o.sbu,
+                    LINE: o.line,
+                    CUSTOMER: o.customer,
+                    PLTYPE: o.pltype
+                };
+                let total: number = 0;
+                [...Array(31)].map((oDay: any, iDay: number) => {
+                    let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
+                    exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
+                    total += parseInt(val != '' ? val : '0');
+                });
+                exportRow['TOTAL'] = total;
+                exportData.push(exportRow)
+            }
+        })
+        const csv = generateCsv(csvConfig)(exportData);
         download(csvConfig)(csv);
     };
+
     const table = useMaterialReactTable({
         columns,
-        data, //10,000 rows
-        columnFilterDisplayMode: 'popover',
-        defaultDisplayColumn: { enableResizing: false },
-        enablePagination: false,
-        enableColumnPinning: true,
-        enableColumnVirtualization: true,
-        enableColumnActions: false,
-        positionGlobalFilter: 'left',
-        enableRowVirtualization: true,
+        data,
+        enableFilters: true,
+        enableColumnFilterModes: true,
         enableColumnOrdering: true,
+        enableGrouping: false,
+        enableColumnPinning: true,
         enableFacetedValues: true,
-        muiTableContainerProps: { sx: { maxHeight: '600px' } },
+        enableRowActions: false,
+        enableRowSelection: false,
+        initialState: {
+            columnPinning: { left: ['modelCode', 'sebango', 'type'], right: ['total'] },
+            showGlobalFilter: true,
+            density: 'compact'
+        },
+        enablePagination: false,
+        columnFilterDisplayMode: 'popover',
+        enableHiding: false,
+        enableRowVirtualization: true,
+        enableColumnVirtualization: true,
         onSortingChange: setSorting,
         state: { isLoading, sorting },
         rowVirtualizerInstanceRef, //optional
         rowVirtualizerOptions: { overscan: 1 }, //optionally customize the row virtualizer
         columnVirtualizerOptions: { overscan: 1 },
-        muiTableBodyRowProps: { hover: false },
-        initialState: {
-            columnPinning: { left: ['modelCode', 'sebango', 'type'] },
-            showGlobalFilter: true,
-            density: 'compact'
-        },
         muiTableHeadCellProps: () => ({
             sx: {
                 backgroundColor: '#f5f5f5',
             },
         }),
-        renderTopToolbarCustomActions: () => (
+        renderTopToolbarCustomActions: ({ table }) => (
             <Button
                 variant='contained'
-                onClick={handleExportData}
+                onClick={() => setFileName(`UKEHARAI-${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`)}
                 startIcon={<FileDownloadIcon />}
             >
                 Export All Data
             </Button>
         )
     });
-    return <div className='p-6' >
-        <TabContext value={value} >
-            <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <TabList onChange={handleChange} className='bg-white' >
-                    <Tab className='py-0' icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" />
-                    <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" />
-                </TabList>
-            </Box>
-            <TabPanel value="1" className='px-0 pt-3'>
-                <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
-                    <div>
-                        <Typography>Year</Typography>
-                        <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
-                            {
-                                _years.map((oYear: string, iYear: number) => {
-                                    return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                    <div>
-                        <Typography>Month</Typography>
-                        <Select value={_month} size='small' onChange={(e: any) => {
-                            setMonth(e.target.value);
-                        }}>
-                            {
-                                _months.map((oMonth: string, iMonth: number) => {
-                                    return <MenuItem value={iMonth} key={iMonth}>{oMonth}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                    <div>
-                        <Typography>&nbsp;</Typography>
-                        <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
-                    </div>
-                </div>
-                <div >
+    return <div className='p-6 h-full' >
+        {/* <TabContext value={value} > */}
+        {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <TabList onChange={handleChange} className='bg-white' > */}
+        {/* <Tab className='py-0' icon={<DashboardCustomizeOutlined />} iconPosition='start' label="Dashboard" value="0" /> */}
+        {/* <Tab className='py-0' icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" /> */}
+        {/* <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" /> */}
+        {/* </TabList>
+            </Box> */}
+        {/* <TabPanel value="0" className='px-0 pt-3 h-[100%]'>
+                <iframe src="http://192.168.226.38:3000/dashboard/snapshot/tD1jLyxkuVgfojUC5KcU3t6f3GBv6fSi?orgId=1" className='w-[100%] h-[100%]'></iframe>
+            </TabPanel> */}
+        {/* <TabPanel value="1" className='px-0 pt-3'> */}
+        <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
+            <div>
+                <Typography>Year</Typography>
+                <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
                     {
-                        isLoading ? <div className='bg-white rounded-lg pt-6 pb-3' style={{borderWidth:'1px',borderColor:'divider'}}>
-                            <Stack className='w-full' alignItems={'center'} gap={1}>
-                                <CircularProgress />
-                                <Typography>กำลังโหลดข้อมูล</Typography>
-                            </Stack>
-                        </div> : (
-                            !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
-                                <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{ border: '1px solid #ddd' }}>
-                                    <Typography >ไม่พบข้อมูลที่คุณค้นหา</Typography>
-                                </div>
-                            </Stack> : <div className='tb-ukeharai'>
-                                <MaterialReactTable table={table} />
-                            </div>
-                        )
+                        _years.map((oYear: string, iYear: number) => {
+                            return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
+                        })
                     }
-                </div>
-            </TabPanel>
-            <TabPanel value="2">
+                </Select>
+            </div>
+            <div>
+                <Typography>Month</Typography>
+                <Select value={_month} size='small' onChange={(e: any) => {
+                    setMonth(e.target.value);
+                }}>
+                    {
+                        _months.map((oMonth: string, iMonth: number) => {
+                            return <MenuItem value={iMonth} key={iMonth}>{oMonth}</MenuItem>
+                        })
+                    }
+                </Select>
+            </div>
+            <Stack gap={1} direction={'row'} alignItems={'flex-end'}>
+                <Typography>&nbsp;</Typography>
+                <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
+                {/* {
+                            Object.keys(data).length > 0 ? <ExportToExcel data={data} ym={`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`} /> : <Button variant='contained' disabled>Export to excel</Button>
+                        } */}
+            </Stack>
+        </div>
+        <div >
+            {
+                isLoading ? <div className='bg-white rounded-lg pt-6 pb-3' style={{ borderWidth: '1px', borderColor: 'divider' }}>
+                    <Stack className='w-full' alignItems={'center'} gap={1}>
+                        <CircularProgress />
+                        <Typography>กำลังโหลดข้อมูล</Typography>
+                    </Stack>
+                </div> : (
+                    !data.length ? <Stack className='w-full ' alignItems={'center'} gap={1}>
+                        <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{ border: '1px solid #ddd' }}>
+                            <Typography >ไม่พบข้อมูลที่คุณค้นหา</Typography>
+                        </div>
+                    </Stack> : <div className='tb-ukeharai'>
+                        <MaterialReactTable table={table} />
+                    </div>
+                )
+            }
+        </div>
+        {/* </TabPanel> */}
+        {/* <TabPanel value="2">
                 <UkeharaiGroupModel />
-            </TabPanel>
-            <TabPanel value="3">
+            </TabPanel> */}
+        {/* <TabPanel value="3">
                 <PageAdjustPlan data={data} />
-            </TabPanel>
-        </TabContext>
+            </TabPanel> */}
+        {/* </TabContext> */}
         <DialogAdjustInventoryMain open={openAdjStockMain} close={handleCloseDialogAdjustInventoryMain} model={ModelSelected} />
     </div>;
 };

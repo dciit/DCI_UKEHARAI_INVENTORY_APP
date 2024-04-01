@@ -277,7 +277,8 @@ td:has(.bg-header-total-inbound-day) {
 td:has(.bg-header-total-inbound-empty) {
   background: #82c6fc57;
 }
-td:has(.bg-header-total-inbound-total){
+
+td:has(.bg-header-total-inbound-total) {
   background: #a2d0f3;
   font-weight: bold;
 }
@@ -306,11 +307,13 @@ tr:has(.bg-inbound-empty) {
 td:has(.bg-header-sale) {
   background: rgb(253, 177, 62);
 }
+
 td:has(.bg-header-sale-total),
-td:has(.bg-sale-total){
+td:has(.bg-sale-total) {
   background: #ffcd82;
   font-weight: bold;
 }
+
 td:has(.bg-header-sale-empty) {
   background: rgb(255 237 210);
 }
@@ -332,42 +335,51 @@ td:has(.bg-header-inventory-balance-pltype) {
 td:has(.bg-sale-day) {
   background: rgb(255 206 133 / 55%);
 }
-td:has(.bg-header-sale-day){
+
+td:has(.bg-header-sale-day) {
   background: rgb(255, 206, 133);
 }
-tr:has(.bg-sale-day){
-  background: rgb(255 237 210)   !important;
+
+tr:has(.bg-sale-day) {
+  background: rgb(255 237 210) !important;
 }
-td:has(.bg-inventory-planning-main){
-  background:#fd9e5b !important;
+
+td:has(.bg-inventory-planning-main) {
+  background: #fd9e5b !important;
 }
-tr:has(.bg-inventory-planning-main){
-  background:#ffc79e !important;
+
+tr:has(.bg-inventory-planning-main) {
+  background: #ffc79e !important;
 }
-td:has(.bg-inventory-planning-main-total){
-  background:#ff954a !important;
+
+td:has(.bg-inventory-planning-main-total) {
+  background: #ff954a !important;
   font-weight: bold !important;
 }
-td:has(.bg-inventory-planning-main-day){
-  background:#ff954a !important;
+
+td:has(.bg-inventory-planning-main-day) {
+  background: #ff954a !important;
 }
 
 .bg-inventory-planning-main {
   font-weight: bold;
 }
 
-td:has(.bg-inventory-planning-final){
-  background:#fd9e5b !important;
+td:has(.bg-inventory-planning-final) {
+  background: #fd9e5b !important;
 }
-tr:has(.bg-inventory-planning-final){
-  background:#ffc79e !important;
+
+tr:has(.bg-inventory-planning-final) {
+  background: #ffc79e !important;
 }
-td:has(.bg-inventory-planning-final-total){
-  background:#ff954a !important;
+
+td:has(.bg-inventory-planning-final-total) {
+  background: #ff954a !important;
   font-weight: bold !important;
 }
-td:has(.bg-inventory-planning-final-day){
-  background:#ff954a !important;
+
+td:has(.bg-inventory-planning-final-day) {
+  background: #ff954a !important;
 }
 
 .bg-inventory-planning-final {
@@ -384,57 +396,68 @@ tr:has(.bg-inventory-planning-day) {
 }
 
 td:has(.bg-inventory-planning-total) {
-  background:#ff954a !important;
+  background: #ff954a !important;
   font-weight: bold;
 }
 
-tr:has(.bg-total-current-all-line){
-  background:#62bd62 !important;
+tr:has(.bg-total-current-all-line) {
+  background: #62bd62 !important;
 }
+
 td:has(.bg-header-inventory) {
   background: #dfd7fd;
 }
-td:has(.bg-header-inventory-day){
+
+td:has(.bg-header-inventory-day) {
   background: #c9bbff;
 }
 
 
-td:has(.bg-header-inventory-balance-pltype-day){
-  background: #ae115d94 ;
+td:has(.bg-header-inventory-balance-pltype-day) {
+  background: #ae115d94;
 }
-td:has(.bg-header-inventory-balance-pltype-day-minus){
-  background:#ffb3b38f;
+
+td:has(.bg-header-inventory-balance-pltype-day-minus) {
+  background: #ffb3b38f;
 }
-td:has(.bg-header-inventory-balance-pltype-total){
-  background:#f7bad4;
-} 
-tr:has(.bg-header-inventory-balance-pltype-empty){
-  background:  #eb96cd21  !important;
+
+td:has(.bg-header-inventory-balance-pltype-total) {
+  background: #f7bad4;
+}
+
+tr:has(.bg-header-inventory-balance-pltype-empty) {
+  background: #eb96cd21 !important;
 }
 
 
-td:has(.bg-header-inventory-balance-day){
-  background:  #dc2e7b63 ;
+td:has(.bg-header-inventory-balance-day) {
+  background: #dc2e7b63;
 }
-tr:has(.bg-header-inventory-balance-day){
+
+tr:has(.bg-header-inventory-balance-day) {
   background: #ed92ba5e !important;
 }
-tr:has(.bg-header-inventory-balance-empty){
-  background:  #eb96cd4f  !important;
+
+tr:has(.bg-header-inventory-balance-empty) {
+  background: #eb96cd4f !important;
 }
-td:has(.bg-header-inventory-balance-total){
+
+td:has(.bg-header-inventory-balance-total) {
   background: #f7bad4 !important;
-  color:black;
+  color: black;
   font-weight: bold;
 }
-td:has(.bg-header-inventory-balance-day-minus){
+
+td:has(.bg-header-inventory-balance-day-minus) {
   background: #ffb3b3;
 }
+
 td:has(.bg-header-inventory-total),
-td:has(.bg-inventory-total){
+td:has(.bg-inventory-total) {
   background: #e8cdfd;
   font-weight: bold;
 }
+
 td:has(.bg-header-inventory-empty) {
   background: #eae5fd94;
 }
@@ -451,17 +474,20 @@ td:has(.bg-inventory) {
 td:has(.bg-inventory-day) {
   background: #d0c1fd;
 }
-tr:has(.bg-inventory-empty){
-  background: #d0c1fd1a !important; 
+
+tr:has(.bg-inventory-empty) {
+  background: #d0c1fd1a !important;
 }
 
 td:has(.bg-inventory-hold) {
   background: rgb(243, 241, 134);
 }
+
 td:has(.bg-inventory-hold-day),
-td:has(.bg-inventory-pdt-day){
+td:has(.bg-inventory-pdt-day) {
   background: yellow;
 }
+
 td:has(.bg-inventory-hold-empty) {
   background: rgb(243 241 134 / 21%);
 }
@@ -502,46 +528,50 @@ tr>td:has(.bg-empty) {
   color: white;
 }
 
-table#tbAdjPlan, table#tbAdjPlan td,  table#tbAdjPlan th {
+table#tbAdjPlan,
+table#tbAdjPlan td,
+table#tbAdjPlan th {
   border: 1px solid;
 }
+
 table#tbAdjPlan td {
-  padding: 4px; 
+  padding: 4px;
   padding-right: 8px;
 }
+
 table#tbAdjPlan {
   width: 100%;
   border-collapse: collapse;
 }
 
-#box-edit-plan [data-cell-colidx="2"], 
-#box-edit-plan [data-cell-colidx="3"], 
-#box-edit-plan [data-cell-colidx="4"], 
-#box-edit-plan [data-cell-colidx="5"], 
-#box-edit-plan [data-cell-colidx="6"], 
-#box-edit-plan [data-cell-colidx="7"], 
-#box-edit-plan [data-cell-colidx="8"], 
-#box-edit-plan [data-cell-colidx="9"], 
-#box-edit-plan [data-cell-colidx="10"], 
-#box-edit-plan [data-cell-colidx="11"], 
-#box-edit-plan [data-cell-colidx="12"], 
-#box-edit-plan [data-cell-colidx="13"], 
-#box-edit-plan [data-cell-colidx="14"], 
-#box-edit-plan [data-cell-colidx="15"], 
-#box-edit-plan [data-cell-colidx="16"], 
-#box-edit-plan [data-cell-colidx="17"], 
-#box-edit-plan [data-cell-colidx="18"], 
-#box-edit-plan [data-cell-colidx="19"], 
-#box-edit-plan [data-cell-colidx="20"], 
-#box-edit-plan [data-cell-colidx="21"], 
-#box-edit-plan [data-cell-colidx="22"], 
-#box-edit-plan [data-cell-colidx="23"], 
-#box-edit-plan [data-cell-colidx="24"], 
-#box-edit-plan [data-cell-colidx="25"], 
-#box-edit-plan [data-cell-colidx="26"], 
-#box-edit-plan [data-cell-colidx="27"], 
-#box-edit-plan [data-cell-colidx="28"], 
-#box-edit-plan [data-cell-colidx="29"], 
+#box-edit-plan [data-cell-colidx="2"],
+#box-edit-plan [data-cell-colidx="3"],
+#box-edit-plan [data-cell-colidx="4"],
+#box-edit-plan [data-cell-colidx="5"],
+#box-edit-plan [data-cell-colidx="6"],
+#box-edit-plan [data-cell-colidx="7"],
+#box-edit-plan [data-cell-colidx="8"],
+#box-edit-plan [data-cell-colidx="9"],
+#box-edit-plan [data-cell-colidx="10"],
+#box-edit-plan [data-cell-colidx="11"],
+#box-edit-plan [data-cell-colidx="12"],
+#box-edit-plan [data-cell-colidx="13"],
+#box-edit-plan [data-cell-colidx="14"],
+#box-edit-plan [data-cell-colidx="15"],
+#box-edit-plan [data-cell-colidx="16"],
+#box-edit-plan [data-cell-colidx="17"],
+#box-edit-plan [data-cell-colidx="18"],
+#box-edit-plan [data-cell-colidx="19"],
+#box-edit-plan [data-cell-colidx="20"],
+#box-edit-plan [data-cell-colidx="21"],
+#box-edit-plan [data-cell-colidx="22"],
+#box-edit-plan [data-cell-colidx="23"],
+#box-edit-plan [data-cell-colidx="24"],
+#box-edit-plan [data-cell-colidx="25"],
+#box-edit-plan [data-cell-colidx="26"],
+#box-edit-plan [data-cell-colidx="27"],
+#box-edit-plan [data-cell-colidx="28"],
+#box-edit-plan [data-cell-colidx="29"],
 #box-edit-plan [data-cell-colidx="30"],
 #box-edit-plan [data-cell-colidx="31"],
 #box-edit-plan [data-cell-colidx="32"] {
@@ -553,19 +583,37 @@ table#tbAdjPlan {
 #box-edit-plan .rg-pane-top {
   background: #3b82f6;
 }
-#box-edit-plan .rg-pane-top .rg-header-cell{
+
+#box-edit-plan .rg-pane-top .rg-header-cell {
   color: white !important;
 }
 
 
-table#tbGroupModel, table#tbGroupModel td,  table#tbGroupModel th {
+table#tbGroupModel,
+table#tbGroupModel td,
+table#tbGroupModel th {
   border: 1px solid;
 }
+
 table#tbGroupModel td {
-  padding: 4px; 
+  padding: 4px;
   padding-right: 8px;
 }
+
 table#tbGroupModel {
   width: 100%;
   border-collapse: collapse;
+}
+
+.tb-ukeharai .MuiTableHead-root .MuiSvgIcon-root {
+  font-size: 22px !important;
+}
+
+button.MuiIconButton-root[aria-label*='-'] {
+  color: red !important;
+}
+
+.card-mtr {
+  border:1px solid #e5e7eb;
+  border-radius: 8px;
 }
