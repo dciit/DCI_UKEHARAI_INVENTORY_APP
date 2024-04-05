@@ -362,4 +362,27 @@ export interface MNavMenu {
 
 export interface MContext {
     navMenu: MNavMenu[];
+    months: string[];
+}
+export interface MChartData {
+    label: string[];
+    dataset: any[];
+}
+
+export interface MChart {
+    name: string;
+    chart: Chart;
+}
+
+export interface Chart {
+    label: string[];
+    dataset: Dataset[];
+}
+
+export interface Dataset {
+    data: number[];
+    backgroundColor: string;
+    borderSkipped: boolean;
+    borderWidth: number;
+    label: string;
 }

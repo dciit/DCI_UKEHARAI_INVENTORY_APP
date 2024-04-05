@@ -41,7 +41,7 @@ function ToolbarComponent() {
         navigate(`/${base}/home`);
     }
     return (
-        <div className='h-[50px] bg-white' style={{ borderBottom: '1px solid #ddd' }}>
+        <div className='h-[50px] bg-white sticky top-0' style={{ borderBottom: '1px solid #ddd' }}>
             <Stack direction={'row'} justifyContent={'space-between'} px={2} className='h-full' alignContent={'center'}>
                 <Stack direction={'row'} alignItems={'center'} spacing={3}>
                     <div>
@@ -54,11 +54,13 @@ function ToolbarComponent() {
                                     {
                                         context.navMenu.map((oNavMenu: MNavMenu, iNavMenu: number) => {
                                             let active: string = typeof redux?.menuActive != 'undefined' ? redux?.menuActive : '';
-                                            return <div className={`cursor-pointer capitalize ${active == oNavMenu.txt && 'bg-black text-white rounded-md'}   hover:bg-black hover:text-white hover:rounded-md px-2 pt-1 pb-2 transition-all duration-200 ${oNavMenu.type == 'child' && 'pl-6'}`} key={iNavMenu}>
+                                            return <div className={`cursor-pointer select-none capitalize ${active == oNavMenu.txt && 'bg-black text-white rounded-md'}  ${oNavMenu.type != 'main' && 'hover:bg-black hover:text-white hover:rounded-md'} px-2 pt-1 pb-2 transition-all duration-200 ${oNavMenu.type == 'child' && 'pl-6'}`} key={iNavMenu}>
                                                 <Stack direction={'row'} spacing={1} onClick={() => {
-                                                    setOpenDrawer(false);
-                                                    navigate(`/${base}/${oNavMenu.path}`);
-                                                    dispatch({ type: 'MENU_ACTIVE', payload: oNavMenu.key })
+                                                    if (oNavMenu.type != 'main') {
+                                                        setOpenDrawer(false);
+                                                        navigate(`/${base}/${oNavMenu.path}`);
+                                                        dispatch({ type: 'MENU_ACTIVE', payload: oNavMenu.key })
+                                                    }
                                                 }}>
                                                     {oNavMenu.icon}
                                                     <span>{oNavMenu.key}</span>

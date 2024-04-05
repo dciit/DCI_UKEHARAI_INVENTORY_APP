@@ -38,7 +38,7 @@ function Login() {
                 if (res.data[0]?.FullName != null) {
                     persistor.purge();
                     dispatch({ type: 'LOGIN', payload: { login: true, data: res.data[0] } });
-                    navigate(`/${base}/home`);
+                    navigate(`/${base}/ukeharai`);
                     setLoad(false)
                 } else {
                     setError(true);

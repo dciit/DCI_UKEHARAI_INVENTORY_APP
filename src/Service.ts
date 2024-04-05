@@ -137,7 +137,6 @@ export default function emptyCache() {
         });
 
         // Makes sure the page reloads. Changes are only visible after you refresh.
-        window.location.reload();
     }
 }
 export function API_PRIVILEGE(module = '', component = '') {
@@ -147,5 +146,13 @@ export function API_PRIVILEGE(module = '', component = '') {
         }).catch(() => {
             resolve([]);
         })
+    })
+}
+
+export function API_CHART_DATA(param: any) {
+    return new Promise<any>(resolve => {
+        http.post(`/chart`, param).then((res) => {
+            resolve(res.data);
+        });
     })
 }

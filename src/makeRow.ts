@@ -1162,54 +1162,14 @@ export const initRowInventoryPlanning = (data: MActPlans, ym: string) => {
     Row.detail = '';
     Row.menuAuto = '';
     let total: number = 0;
-    // let numLastInventory: number = data.lastInventory;
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         let dayLoop: string = fmDay(iDay);
-        console.log(data.listInventoryPlanning);
         let num: number = 0;
         if (typeof data.listInventoryPlanning[iDay] != 'undefined') {
             num = data.listInventoryPlanning[iDay].value;
         }
         Row[`d${dayLoop}`] = num;
         total = num;
-
-        // let oInvPln: MData[] = data.listInventoryPlanning.filter((o: MData) => o.date == `${ym}${dayLoop}`);
-        // if (oInvPln.length) {
-        // Row[`d${dayLoop}`] = oInvPln[0].value;
-        // total = oInvPln[0].value;
-        // } else {
-        //     Row[`d${dayLoop}`] = 0;
-        //     total = 0;
-        // }
-
-
-
-        // var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        // let filterSaleOfDay = data.listSaleForecast.map(o => { return o[`d${dayLoop}`] });
-        // let TotalSaleOfDay = 0;
-        // if (filterSaleOfDay.length) {
-        //     TotalSaleOfDay = filterSaleOfDay.reduce((a, b) => a + b);
-        // }
-        // if (dayLoop == '01') {
-        //     numLastInventory -= TotalSaleOfDay;
-        //     Row[`d${dayLoop}`] = numLastInventory;
-        // } else {
-        //     let PrevDay = (parseInt(dayLoop) - 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        //     let PrevCurrentPlan = 0;
-        //     data.listCurpln.map((oCurPln: ListCurpln) => {
-        //         PrevCurrentPlan += oCurPln[`day${PrevDay}`];
-        //     });
-        //     let InventoryHold = 0;
-        //     if (dayLoop == moment().format('DD') && data.listHoldInventory.length) {
-        //         InventoryHold = parseInt(data.listHoldInventory[0].balstk);
-        //     }
-        //     // console.log(`${numLastInventory} + ${PrevCurrentPlan} + ${InventoryHold}    -  ${TotalSaleOfDay}`)
-        //     numLastInventory = (numLastInventory + PrevCurrentPlan + InventoryHold) - TotalSaleOfDay;
-        //     let InventoryPlanning = numLastInventory;
-        //     Row[`d${dayLoop}`] = InventoryPlanning;
-        //     PrevCurrentPlan = 0;
-        // }
-
     });
     Row.total = total.toLocaleString('en');
     return Row

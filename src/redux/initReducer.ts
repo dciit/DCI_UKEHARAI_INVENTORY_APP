@@ -5,7 +5,7 @@ const initialState: MInitialState = {
     emp: '',
     rev: 0,
     privilege: [],
-    menuActive: 'home',
+    menuActive: 'ukeharai',
 }
 
 const IndexReducer = (state = initialState, action: any) => {

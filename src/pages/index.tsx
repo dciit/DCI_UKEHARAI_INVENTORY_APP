@@ -1,5 +1,5 @@
 //@ts-nocheck
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useEffect, useMemo, useRef, useState } from 'react';
 import {
     MaterialReactTable,
     useMaterialReactTable,
@@ -12,7 +12,7 @@ import { API_INIT_ACT_PLAN } from '../Service';
 import moment from 'moment';
 import { Box, Button, CircularProgress, MenuItem, Select, Stack, Tab, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { MActPlans, MGetActPlan, MTitle } from '../interface';
+import { MActPlans, MContext, MGetActPlan, MTitle } from '../interface';
 import DialogAdjustInventoryMain from '../components/dialog.adjust.inventory';
 import CircleIcon from '@mui/icons-material/Circle';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -24,8 +24,10 @@ import { mkConfig, generateCsv, download } from 'export-to-csv';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ExportToExcel from '../components/export.xlxs';
 import { DashboardCustomizeOutlined } from '@mui/icons-material';
+import { ThemeContext } from '../router/Routers';
 const Index = () => {
     const [filename, setFileName] = useState<string>('');
+    const context: MContext = useContext(ThemeContext);
     const csvConfig = mkConfig({
         fieldSeparator: ',',
         filename: filename,
@@ -37,19 +39,7 @@ const Index = () => {
     const [_month, setMonth] = useState<number>(parseInt(moment().format('MM')) - 1);
 
     const _ym = `${moment().format('YYYY')}${moment().format('MM')}`
-    const [_months] = useState<string[]>([
-        "มกราคม",
-        "กุมภาพันธ์",
-        "มีนาคม",
-        "เมษายน",
-        "พฤษภาคม",
-        "มิถุนายน",
-        "กรกฎาคม",
-        "สิงหาคม",
-        "กันยายน",
-        "ตุลาคม",
-        "พฤศจิกายน",
-        "ธันวาคม"]);
+    const _months = context.months;
     const [titleRows] = useState<string[]>([
         'Current Plan', 'Total Inbound Finishgoods', 'Total Sales Plan&Forecast', 'Total Inventory', 'Inventory Planning', 'Inventory (Hold)', 'Inventory (PDT)'
     ]);
@@ -335,7 +325,7 @@ const Index = () => {
     async function initContent() {
         setIsLoading(true);
         const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
-        let data: any = initData(res.content, _year, _ym);
+        let data: any = initData(res.content, _year, `${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
         setData(data);
     }
     useEffect(() => {
