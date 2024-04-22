@@ -1,6 +1,6 @@
 //@ts-nocheck
 import moment from "moment";
-import { InventoryBalance, InventoryBalancePltype, ListCurpln, ListSaleForecast, MActPlans, MData, MInventory } from "./interface";
+import { InventoryBalance, InventoryBalancePltype, ListCurpln, ListDelivery, ListSaleForecast, MActPlans, MData, MInventory } from "./interface";
 export const fmDay = (numDay: number) => { // แปลงวันที่ D-1 => (D+1).format('DD')
     return (numDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
 }
@@ -604,7 +604,7 @@ export const initRowTotalSale = (data: MActPlans) => {
     Row.total = total.toLocaleString('en');
     return Row
 }
-export const initRowDelivery = (data: MActPlans, oSale: ListSaleForecast) => {
+export const initRowDelivery = (data: MActPlans, oDelivery: ListDelivery) => {
     const Row: MActPlans = {
         ym: '',
         model: '',
@@ -668,14 +668,20 @@ export const initRowDelivery = (data: MActPlans, oSale: ListSaleForecast) => {
     Row.modelCode = data.model.toString();
     Row.sebango = data.sebango;
     Row.type = 'Delivery';
-    Row.customer = oSale.customer;
-    Row.pltype = oSale.pltype;
+    Row.customer = '';
+    Row.pltype = oDelivery.pltype;
     Row.pltypeText = '';
     Row.detail = 'Delivery';
     let total = 0;
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
+
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        Row[`d${vDay}`] = oSale[`d${vDay}`];
+        var item: MData[] = oDelivery.data.filter((o => moment(o.date).format('DD') == vDay));
+        if (item.length) {
+            Row[`d${vDay}`] = item[0].value;
+        } else {
+            Row[`d${vDay}`] = 0;
+        }
     });
     Row.total = total.toLocaleString('en');
     return Row
@@ -916,7 +922,6 @@ export const initRowInventory = (data: MActPlans, oInventory: MInventory, year: 
     Row.menuAuto = 'IVW01 Product Detail';
     let DD: string = moment().format('DD');
     let YYYY: string = moment().format('YYYY');
-    let DDINV: string = oInventory.date.substring(8, 11);
     let YYYYINV: string = oInventory.date.substring(0, 4);
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
@@ -1429,41 +1434,15 @@ export const initRowInventoryPlanningMain = (data: MActPlans) => {
     Row.lastInventoryMain = data.lastInventoryMain;
     Row.menuAuto = '';
     let adjInventoryMain = typeof data.lastInventoryMain?.bal != 'undefined' ? data.lastInventoryMain.bal : 0;
-    [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
-        var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        let filterInventoryMain = data.listActMain.filter(o => o.shiftDate.substring(8, 11) == dayLoop);
-        let InventoryMain = 0;
-        if (filterInventoryMain.length) {
-            InventoryMain = filterInventoryMain[0].cnt;
-        }
-        if (dayLoop == '01') {
-            let numSaleOfDay = 0;
-            numSaleOfDay = data.listSaleForecast.map(o => { return o[`d01`] }).reduce(function (a, b) { return a + b; }, 0);
-            adjInventoryMain -= InventoryMain;
-            adjInventoryMain -= numSaleOfDay;
-            Row[`d${dayLoop}`] = adjInventoryMain;
-        } else {
-            let PrevDay = (dayLoop - 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-            let numSaleOfDay = data.listSaleForecast.map(o => { return o[`d${dayLoop}`] }).reduce(function (a, b) { return a + b; }, 0); // Get Value Sale
-            let rInventoryMainPrevOneDay = data.listActMain.filter(o => o.shiftDate.substring(8, 11) == PrevDay); // Array Inventory Main -1 Day 
-            let valInventory = 0;
-            if (rInventoryMainPrevOneDay.length) {
-                valInventory = rInventoryMainPrevOneDay[0].cnt;
-            }
-            let InventoryHold = 0;
-            if (dayLoop == moment().format('DD') && data.listHoldInventory.length) {
-                InventoryHold = data.listHoldInventory[0].balstk;
-            }
-            adjInventoryMain = (parseInt(adjInventoryMain) + parseInt(valInventory) + parseInt(InventoryHold)) - parseInt(numSaleOfDay);
-            let InventoryPlanning = adjInventoryMain;
-            Row[`d${dayLoop}`] = InventoryPlanning;
-        }
-
+    data.listInventoryPlanningMain.map((o: MData) => {
+        Row[`d${moment(o.date).format('DD')}`] = o.value;
+        total = (o.value != '' && o.value != '0') ? o.value : 0;
     });
-    Row.total = adjInventoryMain.toLocaleString('en');
+    if (typeof data.totalInventoryPlanningMain != 'undefined') {
+        Row.total = data.totalInventoryPlanningMain.toLocaleString('en');
+    }
     return Row
 }
-
 
 export const initRowInventoryBalance = (data: MActPlans) => {
     const Row: MActPlans = {
@@ -1542,23 +1521,10 @@ export const initRowInventoryBalance = (data: MActPlans) => {
         let oInventory: InventoryBalance[] = data.inventoryBalance.filter((o: InventoryBalance) => o.date.substring(6, 8) == dayLoop);
         if (oInventory.length) {
             Row[`d${dayLoop}`] = oInventory[0].value;
+            total = oInventory[0].value;
         } else {
             Row[`d${dayLoop}`] = '';
         }
-        total = Row[`d${dayLoop}`];
-        // if (dayLoop >= dayNow) {
-        //     let filterInventory: string[] = data.inventory.filter((o: MInventory) => o.date.substring(8, 11) == dayLoop).map(o => o.cnt);
-        //     if (filterInventory.length) {
-        //         let sumInventoryOfDay = filterInventory.length ? filterInventory.reduce((a, b) => parseInt(a) + parseInt(b)) : 0;
-        //         numInventoryBalance += sumInventoryOfDay;
-        //     }
-        //     let rSalePrevDay: number[] = data.listSaleForecast.map(o => { return o[`d${dayLoop}`]; }).filter(item => !!item);
-        //     let sumSalePrevDay = rSalePrevDay.length ? rSalePrevDay.reduce((a, b) => a + b) : 0;
-        //     numInventoryBalance -= sumSalePrevDay;
-        //     Row[`d${dayLoop}`] = numInventoryBalance;
-        // } else {
-        //     Row[`d${dayLoop}`] = '';
-        // }
     });
     Row.total = total.toLocaleString('en');
     return Row

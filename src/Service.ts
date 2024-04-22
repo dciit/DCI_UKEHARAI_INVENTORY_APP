@@ -1,6 +1,6 @@
 
 import Axios from "axios";
-import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln } from "./interface";
+import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln, MUpdateInventoryMain } from "./interface";
 
 const http = Axios.create({
     baseURL: import.meta.env.VITE_API,
@@ -154,5 +154,14 @@ export function API_CHART_DATA(param: any) {
         http.post(`/chart`, param).then((res) => {
             resolve(res.data);
         });
+    })
+}
+
+
+export function API_UPDATE_INV_MAIN(param: MUpdateInventoryMain) {
+    return new Promise<any>(resolve => {
+        http.post(`/update_inventory_main`,param).then((res) => {
+            resolve(res.data);
+        })
     })
 }

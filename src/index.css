@@ -614,6 +614,20 @@ button.MuiIconButton-root[aria-label*='-'] {
 }
 
 .card-mtr {
-  border:1px solid #e5e7eb;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
 }
+
+td:has(.bg-delivery-day) {
+  background: #84ff3b8f !important;
+}
+
+tr:has(.bg-delivery) td {
+  background: #84ff3b47;
+}
+
+.page-a3 {
+  width: 29.7cm;
+  height: 42cm;
+}
+

@@ -33,20 +33,17 @@ export const initData = (data: MActPlans[], year: string, ym: string) => {
                 dummyData.push(initRowSale(oData, oSale));
             }
         });
-        oData.listSaleForecast.map((oSale) => {
-            let haveSale: number | string = Object.values(oSale).filter((o, i) => o == 0).length;
-            if (haveSale != 31) {
-                dummyData.push(initRowDelivery(oData, oSale));
-            }
+        oData.listDelivery.map((oDelivery) => {
+            // let haveSale: number | string = Object.values(oDelivery).filter((o, i) => o == 0).length;
+            // if (haveSale != 31) {
+                dummyData.push(initRowDelivery(oData, oDelivery));
+            // }
         });
         dummyData.push(initRowTitleTotalInventory(oData));
         oData.inventory.map((oInventory: MInventory) => {
             dummyData.push(initRowInventory(oData, oInventory, year));
         });
         dummyData.push(initRowInventoryBalance(oData)); // คำนวนผ่าน API
-        // if(oData.model == '1Y115BKAX1N#A'){
-        //     console.log(oData.warning)
-        // }
         oData.inventoryBalancePltype.map((oInventoryBalancePltype: InventoryBalancePltype) => {
             dummyData.push(initRowInventoryBalancePltype(oData, oInventoryBalancePltype)); // คำนวนผ่าน API
         })
@@ -63,7 +60,7 @@ export const initData = (data: MActPlans[], year: string, ym: string) => {
         if (oData.modelGroup == 'ODM') {
             dummyData.push(initRowInventoryPlanningFinal(oData));
         } else {
-            dummyData.push(initRowInventoryPlanningMain(oData));
+            dummyData.push(initRowInventoryPlanningMain(oData)); // คำนวนผ่าน API
         }
         dummyData.push(initRowEmpty());
     })

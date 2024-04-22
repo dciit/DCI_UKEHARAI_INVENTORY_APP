@@ -42,6 +42,7 @@ const Routers = () => {
     let VER = import.meta.env.VITE_VERSION;
     const redux = useSelector((state: any) => state.reducer);
     const dispatch = useDispatch();
+
     useEffect(() => {
         if (typeof redux.rev == 'undefined' || redux.rev != VER) {
             localStorage.clear();
@@ -52,6 +53,7 @@ const Routers = () => {
             location.reload();
         }
     }, []);
+
     return (
         <ThemeContext.Provider value={context} >
             <BrowserRouter>
@@ -65,6 +67,8 @@ const Routers = () => {
                     </Route>
                     <Route path={`${base}/*`} element={<NotFound />} />
                     <Route path={`${base}/login`} element={<Login />} />
+                    <Route path={`${base}/view/warning`} element={<Warning />} />
+                    {/* <Route path={`${base}/warning/pdf`} element={<FormWarningPDF />} /> */}
                 </Routes>
             </BrowserRouter>
         </ThemeContext.Provider>

@@ -8,11 +8,11 @@ import {
     type MRT_RowVirtualizer,
 } from 'material-react-table';
 import { initData, type Person } from '../makeData';
-import { API_INIT_ACT_PLAN } from '../Service';
+import { API_INIT_ACT_PLAN, API_UPDATE_INV_MAIN } from '../Service';
 import moment from 'moment';
 import { Box, Button, CircularProgress, MenuItem, Select, Stack, Tab, Typography } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import { MActPlans, MContext, MGetActPlan, MTitle } from '../interface';
+import { MActPlans, MContext, MGetActPlan, MLastInventoryMain, MRedux, MTitle } from '../interface';
 import DialogAdjustInventoryMain from '../components/dialog.adjust.inventory';
 import CircleIcon from '@mui/icons-material/Circle';
 import { TabContext, TabList, TabPanel } from '@material-ui/lab';
@@ -25,20 +25,31 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import ExportToExcel from '../components/export.xlxs';
 import { DashboardCustomizeOutlined } from '@mui/icons-material';
 import { ThemeContext } from '../router/Routers';
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 const Index = () => {
+    const base = import.meta.env.VITE_PATH;
     const [filename, setFileName] = useState<string>('');
     const context: MContext = useContext(ThemeContext);
+    const navigate = useNavigate();
     const csvConfig = mkConfig({
         fieldSeparator: ',',
         filename: filename,
         decimalSeparator: '.',
         useKeysAsHeaders: true,
     });
+    const redux: MRedux = useSelector((state: any) => state.reducer);
+    let empcode = '';
+    if (typeof redux.emp != 'undefined' && redux.emp == undefined && redux.emp.EmpCode == undefined) {
+        navigate(`/${base}/login`);
+    } else {
+        empcode = redux.emp.EmpCode;
+    }
     const [_year, setYear] = useState<string>(moment().format('YYYY'));
     const [_years] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
     const [_month, setMonth] = useState<number>(parseInt(moment().format('MM')) - 1);
-
-    const _ym = `${moment().format('YYYY')}${moment().format('MM')}`
+    const _ym = `${moment().format('YYYY')} ${moment().format('MM')}`
     const _months = context.months;
     const [titleRows] = useState<string[]>([
         'Current Plan', 'Total Inbound Finishgoods', 'Total Sales Plan&Forecast', 'Total Inventory', 'Inventory Planning', 'Inventory (Hold)', 'Inventory (PDT)'
@@ -54,6 +65,7 @@ const Index = () => {
         { key: 'Inbound Finishgoods', bg: 'bg-orange', class: 'bg-inbound', icon: false, iconColor: '' },
         { key: 'Total Sales Plan&Forecast', bg: 'bg-orange', class: 'bg-header-sale', icon: true, iconColor: 'text-orange-500' },
         { key: 'Sales Plan&Forecast', bg: 'bg-orange', class: 'bg-sale', icon: false, iconColor: '' },
+        { key: 'Delivered', bg: 'bg-header-delivery', class: 'bg-delivery', icon: true, iconColor: 'bg-lime-400' },
         { key: 'Total Inventory', bg: '', class: 'bg-header-inventory', icon: true, iconColor: 'text-purple-500' },
         { key: 'Inventory (Balance)', bg: '', class: 'bg-header-inventory-balance', icon: true, iconColor: 'text-pink-600' },
         { key: 'Inventory Balance (Pltype)', bg: '', class: 'bg-header-inventory-balance-pltype', icon: false, iconColor: '' },
@@ -233,9 +245,14 @@ const Index = () => {
                 let LastInventory: number = cell.getValue() != '' ? parseInt(cell.getValue()) : 0;
                 let type = cell.row.original.type;
                 let lastInventoryMain = typeof cell.row.original.lastInventoryMain != 'undefined' ? cell.row.original.lastInventoryMain : [];
-                if (type == 'Inventory Planning (Main)' || type == 'Inventory Planning (Final)') {
-                    let mainResult: number = lastInventoryMain?.bal | 0;
-                    return <Button variant='contained' size='small' onClick={() => handleOpenAdjStockMain(cell)}>Adj.Main ({mainResult.toLocaleString('en')})</Button>
+                if ((type == 'Inventory Planning (Main)' || type == 'Inventory Planning (Final)')) {
+                    let lastInventoryMain = 0;
+                    try {
+                        lastInventoryMain = cell.row.original.lastInventoryMain.bal;
+                    } catch {
+                        lastInventoryMain = 0;
+                    }
+                    return <Button variant='contained' size='small' onClick={() => handleOpenAdjStockMain(cell)}>Adj.Main ({lastInventoryMain.toLocaleString('en')})</Button>
                 } else if (type == 'Inventory Planning') {
                     return <span className='w-full text-right pr-2 font-bold'>Last Month : {LastInventory.toLocaleString('en')}</span>
                 } else {
@@ -306,6 +323,7 @@ const Index = () => {
     );
     const rowVirtualizerInstanceRef = useRef<MRT_RowVirtualizer>(null);
     const [data, setData] = useState<MActPlans[]>([]);
+    const [dataDef, setDataDef] = useState<MActPlans[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [sorting, setSorting] = useState<MRT_SortingState>([]);
     useEffect(() => {
@@ -313,7 +331,6 @@ const Index = () => {
             setIsLoading(false);
         }
     }, [data]);
-
     useEffect(() => {
         try {
             rowVirtualizerInstanceRef.current?.scrollToIndex?.(0);
@@ -321,10 +338,26 @@ const Index = () => {
             console.error(error);
         }
     }, [sorting]);
-
+    async function handleRefreshInventoryMain() {
+        if (confirm('คุณต้องการบันทึกข้อมูล Inventory Planning (Main,Final) หรือไม่ ?')) {
+            let InventoryPlanningMain: MLastInventoryMain[] = [];
+            dataDef.map((o: MActPlans, i: number) => {
+                InventoryPlanningMain.push({
+                    model: o.model.replace(/(\r\n|\n|\r)/gm, ""),
+                    value: o.listInventoryPlanningMain[o.listInventoryPlanningMain.length - 1].value
+                })
+            });
+            let res = await API_UPDATE_INV_MAIN({
+                ym: `${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`,
+                empcode: empcode,
+                data: InventoryPlanningMain
+            });
+        }
+    }
     async function initContent() {
         setIsLoading(true);
         const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
+        setDataDef(res.content);
         let data: any = initData(res.content, _year, `${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
         setData(data);
     }
@@ -360,7 +393,6 @@ const Index = () => {
         const csv = generateCsv(csvConfig)(exportData);
         download(csvConfig)(csv);
     };
-
     const table = useMaterialReactTable({
         columns,
         data,
@@ -403,18 +435,6 @@ const Index = () => {
         )
     });
     return <div className='p-6 h-full' >
-        {/* <TabContext value={value} > */}
-        {/* <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                <TabList onChange={handleChange} className='bg-white' > */}
-        {/* <Tab className='py-0' icon={<DashboardCustomizeOutlined />} iconPosition='start' label="Dashboard" value="0" /> */}
-        {/* <Tab className='py-0' icon={<ListIcon />} iconPosition='start' label="Display by model" value="1" /> */}
-        {/* <Tab className='py-0' icon={<ScatterPlotIcon />} iconPosition='start' label="Display by group" value="2" /> */}
-        {/* </TabList>
-            </Box> */}
-        {/* <TabPanel value="0" className='px-0 pt-3 h-[100%]'>
-                <iframe src="http://192.168.226.38:3000/dashboard/snapshot/tD1jLyxkuVgfojUC5KcU3t6f3GBv6fSi?orgId=1" className='w-[100%] h-[100%]'></iframe>
-            </TabPanel> */}
-        {/* <TabPanel value="1" className='px-0 pt-3'> */}
         <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
             <div>
                 <Typography>Year</Typography>
@@ -438,12 +458,14 @@ const Index = () => {
                     }
                 </Select>
             </div>
-            <Stack gap={1} direction={'row'} alignItems={'flex-end'}>
-                <Typography>&nbsp;</Typography>
-                <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
+            <Stack gap={1} direction={'row'} alignItems={'flex-end'} justifyContent={'space-between'} width={'100%'} >
+                <Stack>
+                    <Typography>&nbsp;</Typography>
+                    <Button startIcon={<SearchIcon />} variant='contained' onClick={initContent}>ค้นหา</Button>
+                </Stack>
                 {/* {
-                            Object.keys(data).length > 0 ? <ExportToExcel data={data} ym={`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`} /> : <Button variant='contained' disabled>Export to excel</Button>
-                        } */}
+                    dataDef.length > 0 && <Button variant='contained' startIcon={<RefreshIcon />} onClick={handleRefreshInventoryMain}>คำนวน Inventory (Main,Final)</Button>
+                } */}
             </Stack>
         </div>
         <div >
@@ -464,14 +486,6 @@ const Index = () => {
                 )
             }
         </div>
-        {/* </TabPanel> */}
-        {/* <TabPanel value="2">
-                <UkeharaiGroupModel />
-            </TabPanel> */}
-        {/* <TabPanel value="3">
-                <PageAdjustPlan data={data} />
-            </TabPanel> */}
-        {/* </TabContext> */}
         <DialogAdjustInventoryMain open={openAdjStockMain} close={handleCloseDialogAdjustInventoryMain} model={ModelSelected} />
     </div>;
 };

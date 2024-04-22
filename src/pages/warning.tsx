@@ -5,33 +5,91 @@ import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { MActPlans, MData } from '../interface';
 import { API_GET_WARNING, API_INIT_ACT_PLAN } from '../Service';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import ExcelWarning from '../components/warning/form.pdf.comp';
+import { useNavigate } from 'react-router-dom';
 export interface MWarning {
     model: string;
-    sbu: null;
-    sebango: null;
+    sbu: string;
+    sebango: string;
     customer: string[];
-    pltype: string[];
+    pltype: Pltype[];
     total: number;
-    listSale: MData[];
-    listInventory: MData[];
+    listSale: List[];
+    listInventory: List[];
 }
+export interface List {
+    date: string;
+    value: number;
+    customer: null;
+}
+
+export interface Pltype {
+    customer: string;
+    pltype: string[];
+}
+export interface MColor {
+    customer: string;
+    color: string;
+}
+const COLORS = [
+    'bg-[#4dc9f6ab]',
+    'bg-[#f67019ab]',
+    'bg-[#f53794ab]',
+    'bg-[#537bc4ab]',
+    'bg-[#acc236ab]',
+    'bg-[#166a8fab]',
+    'bg-[#00a950ab]',
+    'bg-[#58595bab]',
+    'bg-[#8549baab]',
+    'bg-[#ddddddab]',
+    'bg-[#dddddd]'
+];
 function Warning() {
+    const navigate = useNavigate();
+    const [rndColor, setRndColor] = useState<MColor[]>([]);
+    const [_year, setYear] = useState<string>(moment().format('YYYY'));
+    const [_month, setMonth] = useState<number>(parseInt(moment().format('MM')));
+    const [rYear] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
+    const [ym, setYm] = useState<string>(moment().format('YYYYMM'));
     const [load, setLoad] = useState<boolean>(false);
     const [data, setData] = useState<MWarning[]>([]);
-    const dtNow = moment().format('YYYYMMDD')
+    const dtNow = moment().format('YYYYMMDD');
+    const [once, setOnce] = useState<boolean>(true);
     async function handleSearch() {
         setLoad(true);
-        let res = await API_GET_WARNING('202403');
+        let res = await API_GET_WARNING(ym);
+        let customer: string[] = [];
+        (res.map((o: MWarning) => o.customer)).map((x: string[]) => {
+            customer = customer.concat(x)
+        });
+        let rnd: MColor[] = [];
+        [...new Set(customer)].map((o: string, i: number) => {
+            rnd.push({
+                color: COLORS[i],
+                customer: o
+            });
+        })
+        setRndColor([...rnd]);
         setData(res);
     }
     useEffect(() => {
         setLoad(false);
-    }, [data])
+    }, [data]);
+    useEffect(() => {
+        if (once == true) {
+            init();
+        }
+    }, [once]);
+    async function init() {
+        let init_once = await handleSearch();
+        console.log(init_once);
+    }
     return (
-        <Stack p={6} gap={3}>
+        <Stack px={6} pb={6} pt={3} gap={2}>
             <Grid container className='bg-yellow-200 border-2 border-black'>
                 <Grid item xs={2}></Grid>
-                <Grid item xs={8} className='flex justify-center items-center py-[8px] text-[10px] xs:text-[10px] sm:text-[18px] md:text-[24px] lg:text-[30px] xl:text-[36px]'>
+                <Grid item xs={8} className='flex justify-center items-center py-[8px] text-[10px] xs:text-[10px] sm:text-[18px] md:text-[24px] lg:text-[26px] xl:text-[26px]'>
                     <nobr>
                         <span className='text-red-500 font-bold'>WARNING</span>
                         <span> : SALE & FG INVENTORY</span>
@@ -49,15 +107,21 @@ function Warning() {
 
             <Grid container spacing={1}>
                 <Grid item xs={12}>
-                    <Button startIcon={<Search />} variant='contained' size='small' onClick={handleSearch}>ค้นหาข้อมูล</Button>
+                    <Stack width={'100%'} justifyContent={'space-between'} direction={'row'}>
+                        <Button startIcon={<Search />} variant='contained' size='small' onClick={handleSearch}>Search</Button>
+                        <Stack direction={'row'} gap={1}>
+                            <Button startIcon={<FileUploadIcon />} variant='contained' color='success' onClick={() => window.open('./warning/pdf', '_blank')}>Delivery Control Sheet</Button>
+                            <Button startIcon={<FileUploadIcon />} variant='contained' color='success'>Export</Button>
+                        </Stack>
+                    </Stack>
                 </Grid>
                 <Grid item xs={12} >
-                    <div className='overflow-y-scroll max-h-[500px] border border-black border-x-0'>
+                    <div className='overflow-y-scroll  border border-black border-x-0'>
                         <table className='table-auto border-black border overflow-scroll w-full border-collapse  bg-white'>
                             <thead>
                                 <tr>
                                     {
-                                        ['SBU', 'MODEL', 'SEBANGO', 'CUS', 'PLTYPE', 'DESC', 'TTL'].map((oTh: string, iTh: number) => (
+                                        ['SBU', 'MODEL', 'SEBANGO', 'CUS/PLTYPE', 'DESC', 'TTL'].map((oTh: string, iTh: number) => (
                                             <th className={`border border-black sticky top-0 text-[#fa7d00] bg-[#f2f2f2]`} key={iTh}>{oTh}</th>
                                         ))
                                     }
@@ -75,7 +139,7 @@ function Warning() {
                                         <td colSpan={17}>
                                             <div className='flex items-center justify-center flex-col gap-1 p-3'>
                                                 <CircularProgress />
-                                                <span>กำลังโหลดข้อมูล</span>
+                                                <span className='text-[14px]'>กำลังโหลดข้อมูล</span>
                                             </div>
                                         </td>
                                     </tr> : (
@@ -88,27 +152,46 @@ function Warning() {
                                             data.map((oData: MWarning, iData: number) => {
                                                 let tSaleOfDay: number = oData.listSale.map(o => o.value).reduce((a, b) => a + b);
                                                 let oSaleFirstDay: MData[] = oData.listSale.filter(o => o.date == dtNow);
-                                                let tInv: number = (oData.listInventory.length && typeof oData.listInventory[0] != 'undefined') ? Number(oData.listInventory[0].value + (oSaleFirstDay.length ? oSaleFirstDay[0].value : 0)) : 0;
+                                                let tInv: number = (oData.listInventory.length && typeof oData.listInventory[0] != 'undefined') ? Number(oData.listInventory[0].value) : 0;
+                                                // let tInv: number = (oData.listInventory.length && typeof oData.listInventory[0] != 'undefined') ? Number(oData.listInventory[0].value + (oSaleFirstDay.length ? oSaleFirstDay[0].value : 0)) : 0;
                                                 return ['SALE PLAN & FORECASE', 'INV.REMAIN', 'INV.NOT REMAIN'].map((oType: string, iType: number) => {
                                                     return <tr key={iData}>
                                                         {
                                                             iType == 0 && <>
-                                                                <td className='border text-[14px] border-black' rowSpan={3}>{oData.sbu}</td>
-                                                                <td className='border text-[14px] border-black font-bold' rowSpan={3}>{oData.model}</td>
-                                                                <td className='border text-[14px] border-black text-center' rowSpan={3}>{oData.sebango}</td>
-                                                                <td className='border text-[14px] border-black' rowSpan={3}>{oData.customer.join(',')}</td>
-                                                                <td className='border text-[14px] border-black' rowSpan={3}>{oData.pltype.join(',')}</td>
+                                                                <td className='border text-[14px] border-black align-top' rowSpan={3}>{oData.sbu}</td>
+                                                                <td className='border text-[14px] border-black font-bold align-top' rowSpan={3}>{oData.model}</td>
+                                                                <td className='border text-[14px] border-black text-center align-top' rowSpan={3}>{oData.sebango}</td>
+                                                                <td className='border text-[14px] border-black align-top  m-0 p-0' rowSpan={3}>
+                                                                    <table width={'100%'} className='h-full '>
+                                                                        <tbody>
+                                                                            {
+                                                                                oData.pltype.map((oPltypeOfCustomer: Pltype) => {
+                                                                                    let color: string = rndColor.filter(o => o.customer == oPltypeOfCustomer.customer).length ? rndColor.filter(o => o.customer == oPltypeOfCustomer.customer)[0].color : '';
+                                                                                    return oPltypeOfCustomer.pltype.map((oPltype: string, iPltype: number) => {
+                                                                                        return <tr>
+                                                                                            {
+                                                                                                iPltype == 0 && <td width={'40%'} rowSpan={oPltypeOfCustomer.pltype.length} className={`border-b  border-black  ${color}`}>{oPltypeOfCustomer.customer}</td>
+                                                                                            }
+                                                                                            <td className={`border-l border-b border-black ${color}`}>{oPltype}</td>
+                                                                                        </tr>
+                                                                                    })
+                                                                                })
+                                                                            }
+                                                                        </tbody>
+                                                                    </table>
+                                                                </td>
+                                                                {/* <td className='border text-[14px] border-black align-top' rowSpan={3}>{oData.pltype.join(', ')}</td> */}
                                                             </>
                                                         }
-                                                        <td className={`border font-semibold border-black ${iType == 0 ? 'bg-blue-200' : (iType == 1 ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-600')}`}>{oType}</td>
+                                                        <td className={`${iType == 2 && 'border  border-t-0'} font-semibold border-black ${iType == 0 ? 'bg-blue-200' : (iType == 1 ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-600')}`}>{oType}</td>
                                                         {
-                                                            iType == 0 && <td className='border border-black text-right pr-1 font-bold '>{tSaleOfDay.toLocaleString('en')}</td>
+                                                            iType == 0 && <td className='border-l border-black text-right pr-1 font-bold '>{tSaleOfDay.toLocaleString('en')}</td>
                                                         }
                                                         {
-                                                            iType == 1 && <td className='border border-black text-right pr-1 font-bold'>{tInv.toLocaleString('en')}</td>
+                                                            iType == 1 && <td className='border-l bg-green-200 border-black text-right pr-1 font-bold text-green-800'>{tInv.toLocaleString('en')}</td>
                                                         }
                                                         {
-                                                            iType == 2 && <td className={`border border-black text-right pr-1 font-bold ${oData.total < 0 && 'bg-red-200 text-red-600'}`}>{oData.total < 0 && `(${oData.total.toLocaleString('en')})`}</td>
+                                                            iType == 2 && <td className={` border-b border-black text-right pr-1 font-bold ${oData.total < 0 && 'bg-red-200 text-red-600'}`}>{oData.total < 0 && `${oData.total.toLocaleString('en')}`}</td>
                                                         }
 
                                                         {
@@ -119,7 +202,7 @@ function Warning() {
                                                                 if (rSaleOfDay.length) {
                                                                     nSaleOfDay = rSaleOfDay[0].value;
                                                                 }
-                                                                return <td className={`border border-black text-right pr-1 ${nSaleOfDay > 0 && ' font-bold bg-blue-100'}`} key={`${iDay}${oDay}`}>{nSaleOfDay > 0 && nSaleOfDay.toLocaleString('en')}</td>
+                                                                return <td className={`${iDay == 0 && 'border-l'} border-black text-right pr-1 ${nSaleOfDay > 0 && ' font-bold bg-blue-100'}`} key={`${iDay}${oDay}`}>{nSaleOfDay > 0 && nSaleOfDay.toLocaleString('en')}</td>
                                                             })
                                                         }
                                                         {
@@ -130,7 +213,7 @@ function Warning() {
                                                                 if (rInv.length) {
                                                                     nInv = rInv[0].value;
                                                                 }
-                                                                return nInv > 0 ? <td className='border border-black  text-right pr-1 text-green-800 font-bold bg-green-100' key={`${iDay}${oDay}`}>{nInv.toLocaleString('en')}</td> : <td className='border border-black text-right pr-1' key={`${iDay}${oDay}`}></td>
+                                                                return nInv > 0 ? <td className={`${iDay == 0 && 'border-l'} border-black  text-right pr-1 text-green-800 font-bold bg-green-100`} key={`${iDay}${oDay}`}>{nInv.toLocaleString('en')}</td> : <td className={`${iDay == 0 && 'border-l'}  border-black text-right pr-1`} key={`${iDay}${oDay}`}></td>
                                                             })
                                                         }
                                                         {
@@ -141,7 +224,7 @@ function Warning() {
                                                                 if (rInv.length) {
                                                                     nInv = rInv[0].value;
                                                                 }
-                                                                return nInv < 0 ? <td className='border border-black text-right pr-1 text-red-600 font-bold bg-red-100' key={`${iDay}${oDay}`}>{nInv.toLocaleString('en')}</td> : <td className='border border-black text-right pr-1' key={`${iDay}${oDay}`}></td>
+                                                                return nInv < 0 ? <td className={`${iDay == 0 && 'border-l'} border-b border-black text-right pr-1 text-red-600 font-bold bg-red-100`} key={`${iDay}${oDay}`}>{nInv.toLocaleString('en')}</td> : <td className={`${iDay == 0 && 'border-l'} border-b border-black text-right pr-1`} key={`${iDay}${oDay}`}></td>
                                                             })
                                                         }
                                                     </tr>

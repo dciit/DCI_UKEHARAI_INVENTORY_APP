@@ -56,6 +56,8 @@ export interface MActPlans {
     inventoryBalancePltype: InventoryBalancePltype[];
     listInventoryPlanning: MData[];
     listSaleForeCaseAllCustomer: MData[];
+    listDelivery: ListDelivery[];
+    listInventoryPlanningMain: ListInventoryPlanningMain[];
     warning: boolean; // สำหรับหน้า Warning 1 = Inventory balance ติดลบ 
     d01: number;
     d02: number;
@@ -89,7 +91,18 @@ export interface MActPlans {
     d30: number;
     d31: number;
     total: string;
+    totalInventoryPlanningMain : number;
 }
+
+export interface ListDelivery {
+    pltype: string;
+    data: MData[];
+}
+export interface ListInventoryPlanningMain {
+    pltype: string;
+    data: MData[];
+}
+
 export interface MData {
     value: number;
     date: string;
@@ -385,4 +398,15 @@ export interface Dataset {
     borderSkipped: boolean;
     borderWidth: number;
     label: string;
+}
+
+export interface MLastInventoryMain {
+    model: string;
+    value: number;
+}
+
+export interface MUpdateInventoryMain {
+    ym: string;
+    empcode: string;
+    data: MLastInventoryMain[];
 }
