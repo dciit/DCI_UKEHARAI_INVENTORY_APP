@@ -1,12 +1,20 @@
 import { Outlet } from "react-router";
 import { Stack } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import ToolbarComponent from "./components/toolbarComponent";
 import Login from "./pages/login";
 import Breadcrumb from "./components/breadcrumb.component";
+import { useEffect } from "react";
 function Layout() {
     const reducer = useSelector((state: any) => state.reducer);
+    const reduxEmp = reducer.emp;
+    const dispatch = useDispatch();
     let oLogin = false;
+    useEffect(() => {
+        if (reduxEmp == "") {
+            dispatch({ type: 'LOGOUT' });
+        }
+    }, [])
     if (typeof reducer.login !== 'undefined') {
         oLogin = reducer.login;
     }

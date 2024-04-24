@@ -49,6 +49,8 @@ function Login() {
                 setLoad(false);
                 setError(true);
             });
+        }else{
+            alert('error')
         }
     }
 

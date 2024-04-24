@@ -41,7 +41,7 @@ const Index = () => {
     });
     const redux: MRedux = useSelector((state: any) => state.reducer);
     let empcode = '';
-    if (typeof redux.emp != 'undefined' && redux.emp == undefined && redux.emp.EmpCode == undefined) {
+    if (typeof redux.emp == 'undefined' &&  redux.emp == undefined || redux.emp.EmpCode == undefined  ) {
         navigate(`/${base}/login`);
     } else {
         empcode = redux.emp.EmpCode;

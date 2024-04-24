@@ -50,7 +50,6 @@ const Routers = () => {
             persistor.purge();
             dispatch({ type: 'RESET' });
             dispatch({ type: 'SET_VERSION', payload: VER });
-            location.reload();
         }
     }, []);
 

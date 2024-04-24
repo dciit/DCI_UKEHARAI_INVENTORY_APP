@@ -4,10 +4,11 @@ import { Box, Button, CircularProgress, Grid, Stack, Typography } from '@mui/mat
 import moment from 'moment'
 import React, { useEffect, useState } from 'react'
 import { MActPlans, MData } from '../interface';
-import { API_GET_WARNING, API_INIT_ACT_PLAN } from '../Service';
+import { API_GET_WARNING, API_INIT_ACT_PLAN, API_WARNING_EXCEL } from '../Service';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import ExcelWarning from '../components/warning/form.pdf.comp';
 import { useNavigate } from 'react-router-dom';
+import { download, generateCsv, mkConfig } from 'export-to-csv';
 export interface MWarning {
     model: string;
     sbu: string;
@@ -15,13 +16,22 @@ export interface MWarning {
     customer: string[];
     pltype: Pltype[];
     total: number;
+    inventory: number;
     listSale: List[];
     listInventory: List[];
+    listSaleExcel: MItemWarningExcel[];
+}
+export interface MItemWarningExcel {
+    model: string;
+    customer: string;
+    pltype: string;
+    data: List[];
 }
 export interface List {
     date: string;
     value: number;
     customer: null;
+    pltype: string;
 }
 
 export interface Pltype {
@@ -46,6 +56,7 @@ const COLORS = [
     'bg-[#dddddd]'
 ];
 function Warning() {
+    const [fileName, setFileName] = useState<string>('');
     const navigate = useNavigate();
     const [rndColor, setRndColor] = useState<MColor[]>([]);
     const [_year, setYear] = useState<string>(moment().format('YYYY'));
@@ -56,6 +67,7 @@ function Warning() {
     const [data, setData] = useState<MWarning[]>([]);
     const dtNow = moment().format('YYYYMMDD');
     const [once, setOnce] = useState<boolean>(true);
+    const dtExcel = moment();
     async function handleSearch() {
         setLoad(true);
         let res = await API_GET_WARNING(ym);
@@ -83,8 +95,67 @@ function Warning() {
     }, [once]);
     async function init() {
         let init_once = await handleSearch();
-        console.log(init_once);
     }
+    async function handleExcel() {
+        let exportData = [];
+        console.log(data)
+        data.map((oData: MWarning) => {
+            console.log(oData);
+            oData.listSaleExcel.map((oItem: MItemWarningExcel) => {
+                const date = moment(dtExcel.format('YYYYMMDD'));
+                let newRow = {
+                    SBU: oData.sbu,
+                    MODEL: oData.model,
+                    SEBANGO: oData.sebango,
+                    CUSTOMER: oItem.customer,
+                    PLTYPE: oItem.pltype,
+                    DESC: 'SALE PLAN & FORECASE',
+                    TTL: oItem.data.map(x => x.value).reduce((a, b) => a + b),
+                    [`${date.format('DD-MMM')}`]: oItem.data[0].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[1].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[2].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[3].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[4].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[5].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[6].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[7].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[8].value,
+                    [`${date.add(1, 'days').format('DD-MMM')}`]: oItem.data[9].value,
+                };
+                exportData.push(newRow);
+            });
+            // console.log(oData.listInventory)
+            exportData.push({
+                SBU: oData.sbu,
+                MODEL: oData.model,
+                SEBANGO: oData.sebango,
+                CUSTOMER: '',
+                PLTYPE: '',
+                DESC: 'INV.REMAIN',
+                TTL: oData.inventory,
+                [`${moment(dtExcel.format('YYYYMMDD')).format('DD-MMM')}`]: oData.listInventory[0].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(1, 'days').format('DD-MMM')}`]: oData.listInventory[1].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(2, 'days').format('DD-MMM')}`]: oData.listInventory[2].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(3, 'days').format('DD-MMM')}`]: oData.listInventory[3].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(4, 'days').format('DD-MMM')}`]: oData.listInventory[4].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(5, 'days').format('DD-MMM')}`]: oData.listInventory[5].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(6, 'days').format('DD-MMM')}`]: oData.listInventory[6].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(7, 'days').format('DD-MMM')}`]: oData.listInventory[7].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(8, 'days').format('DD-MMM')}`]: oData.listInventory[8].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(9, 'days').format('DD-MMM')}`]: oData.listInventory[9].value,
+            })
+        });
+        const csvConfig = mkConfig({
+            fieldSeparator: ',',
+            filename: `excel-warning-${moment().format('DDMMYYYY')}`,
+            decimalSeparator: '.',
+            useKeysAsHeaders: true,
+        });
+        const csv = generateCsv(csvConfig)(exportData);
+        download(csvConfig)(csv);
+    }
+
+
     return (
         <Stack px={6} pb={6} pt={3} gap={2}>
             <Grid container className='bg-yellow-200 border-2 border-black'>
@@ -110,8 +181,8 @@ function Warning() {
                     <Stack width={'100%'} justifyContent={'space-between'} direction={'row'}>
                         <Button startIcon={<Search />} variant='contained' size='small' onClick={handleSearch}>Search</Button>
                         <Stack direction={'row'} gap={1}>
-                            <Button startIcon={<FileUploadIcon />} variant='contained' color='success' onClick={() => window.open('./warning/pdf', '_blank')}>Delivery Control Sheet</Button>
-                            <Button startIcon={<FileUploadIcon />} variant='contained' color='success'>Export</Button>
+                            {/* <Button startIcon={<FileUploadIcon />} variant='contained' color='success' onClick={() => window.open('./warning/pdf', '_blank')}>Delivery Control Sheet</Button> */}
+                            <Button startIcon={<FileUploadIcon />} variant='contained' color='success' onClick={handleExcel}>Export</Button>
                         </Stack>
                     </Stack>
                 </Grid>

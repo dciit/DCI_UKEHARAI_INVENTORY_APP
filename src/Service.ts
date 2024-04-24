@@ -160,7 +160,15 @@ export function API_CHART_DATA(param: any) {
 
 export function API_UPDATE_INV_MAIN(param: MUpdateInventoryMain) {
     return new Promise<any>(resolve => {
-        http.post(`/update_inventory_main`,param).then((res) => {
+        http.post(`/update_inventory_main`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function API_WARNING_EXCEL(ym: string) {
+    return new Promise<any>(resolve => {
+        http.get(`/warning/excel/${ym}`).then((res) => {
             resolve(res.data);
         })
     })
