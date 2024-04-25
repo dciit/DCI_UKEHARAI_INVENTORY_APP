@@ -36,7 +36,7 @@ export const initData = (data: MActPlans[], year: string, ym: string) => {
         oData.listDelivery.map((oDelivery) => {
             // let haveSale: number | string = Object.values(oDelivery).filter((o, i) => o == 0).length;
             // if (haveSale != 31) {
-                dummyData.push(initRowDelivery(oData, oDelivery));
+            dummyData.push(initRowDelivery(oData, oDelivery));
             // }
         });
         dummyData.push(initRowTitleTotalInventory(oData));
@@ -50,7 +50,7 @@ export const initData = (data: MActPlans[], year: string, ym: string) => {
         dummyData.push(initTotalTitleInbound(oData, ym));
         oData.listCurpln.map((oCurpln: ListCurpln) => {
             dummyData.push(initRowCurPln(oData, oCurpln));
-            dummyData.push(initRowMainAssy(oData, oCurpln.wcno));
+            dummyData.push(initRowMainAssy(oData, oCurpln.wcno, ym));
             dummyData.push(initRowFinal(oData, oCurpln.wcno));
         });
         dummyData.push(initRowTotalCurPlnAllLine(oData));

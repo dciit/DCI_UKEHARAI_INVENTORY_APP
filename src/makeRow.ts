@@ -89,7 +89,7 @@ export const initRowCurPln = (data: MActPlans, oCurpln: ListCurpln | any) => {
     Row.total = total.toLocaleString('en');
     return Row
 }
-export const initRowTotalCurPlnAllLine = (data: MActPlans) => {
+export const initRowTotalCurPlnAllLine = (data: MActPlans, ym: string) => {
     const Row: MActPlans = {
         ym: '',
         model: '',
@@ -178,7 +178,9 @@ export const initRowTotalCurPlnAllLine = (data: MActPlans) => {
     Row.total = total.toLocaleString('en');
     return Row
 }
-export const initRowMainAssy = (data: MActPlans, wcno: number) => {
+export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
+    let mm:string = ym.substring(4,6);
+    console.log(mm)
     const Row: MActPlans = {
         ym: '',
         model: '',
@@ -256,8 +258,10 @@ export const initRowMainAssy = (data: MActPlans, wcno: number) => {
     let total = 0;
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-
-        var index = data.listActMain.findIndex(o => o.shiftDate.substring(8, 11) == vDay && (o.model_No == data.modelCode || o.modelName == data.model.trim()) && o.lineName == wcno.toString());
+        data.listActMain.map((a:any)=>{
+            console.log(a.shiftDate.substring(5,7))
+        })
+        var index = data.listActMain.findIndex(o => o.shiftDate.substring(8, 11) == vDay && o.shiftDate.substring(5, 7) == mm && (o.model_No == data.modelCode || o.modelName == data.model.trim()) && o.lineName == wcno.toString());
         if (index != -1) {
             Row[`d${vDay}`] = data.listActMain[index].cnt;
             total += data.listActMain[index].cnt;
