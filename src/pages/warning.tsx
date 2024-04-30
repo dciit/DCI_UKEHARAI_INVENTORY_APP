@@ -1,6 +1,6 @@
 //@ts-nocheck
 import { Search } from '@mui/icons-material';
-import { Box, Button, CircularProgress, Grid, Stack, Typography } from '@mui/material'
+import { Box, Button, CircularProgress, Grid, IconButton, Stack, Typography } from '@mui/material'
 import moment from 'moment'
 import React, { Fragment, useEffect, useState } from 'react'
 import { MActPlans, MData } from '../interface';
@@ -9,6 +9,7 @@ import FileUploadIcon from '@mui/icons-material/FileUpload';
 import ExcelWarning from '../components/warning/form.pdf.comp';
 import { useNavigate } from 'react-router-dom';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
+import SearchIcon from '@mui/icons-material/Search';
 export interface MWarning {
     model: string;
     sbu: string;
@@ -17,6 +18,7 @@ export interface MWarning {
     pltype: Pltype[];
     total: number;
     inventory: number;
+    inbound?: number;
     listSale: List[];
     listInventory: List[];
     listSaleExcel: MItemWarningExcel[];
@@ -106,7 +108,6 @@ function Warning() {
         let exportData = [];
         console.log(data)
         data.map((oData: MWarning) => {
-            console.log(oData);
             oData.listSaleExcel.map((oItem: MItemWarningExcel) => {
                 const date = moment(dtExcel.format('YYYYMMDD'));
                 let newRow = {
@@ -130,7 +131,6 @@ function Warning() {
                 };
                 exportData.push(newRow);
             });
-            // console.log(oData.listInventory)
             exportData.push({
                 SBU: oData.sbu,
                 MODEL: oData.model,
@@ -139,16 +139,40 @@ function Warning() {
                 PLTYPE: '',
                 DESC: 'INV.REMAIN',
                 TTL: oData.inventory,
-                [`${moment(dtExcel.format('YYYYMMDD')).format('DD-MMM')}`]: oData.listInventory[0].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(1, 'days').format('DD-MMM')}`]: oData.listInventory[1].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(2, 'days').format('DD-MMM')}`]: oData.listInventory[2].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(3, 'days').format('DD-MMM')}`]: oData.listInventory[3].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(4, 'days').format('DD-MMM')}`]: oData.listInventory[4].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(5, 'days').format('DD-MMM')}`]: oData.listInventory[5].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(6, 'days').format('DD-MMM')}`]: oData.listInventory[6].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(7, 'days').format('DD-MMM')}`]: oData.listInventory[7].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(8, 'days').format('DD-MMM')}`]: oData.listInventory[8].value,
-                [`${moment(dtExcel.format('YYYYMMDD')).add(9, 'days').format('DD-MMM')}`]: oData.listInventory[9].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).format('DD-MMM')}`]: oData.listInventory[0].value > 0 ? oData.listInventory[0].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(1, 'days').format('DD-MMM')}`]: oData.listInventory[1].value > 0 ? oData.listInventory[1].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(2, 'days').format('DD-MMM')}`]: oData.listInventory[2].value > 0 ? oData.listInventory[2].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(3, 'days').format('DD-MMM')}`]: oData.listInventory[3].value > 0 ? oData.listInventory[3].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(4, 'days').format('DD-MMM')}`]: oData.listInventory[4].value > 0 ? oData.listInventory[4].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(5, 'days').format('DD-MMM')}`]: oData.listInventory[5].value > 0 ? oData.listInventory[5].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(6, 'days').format('DD-MMM')}`]: oData.listInventory[6].value > 0 ? oData.listInventory[6].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(7, 'days').format('DD-MMM')}`]: oData.listInventory[7].value > 0 ? oData.listInventory[7].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(8, 'days').format('DD-MMM')}`]: oData.listInventory[8].value > 0 ? oData.listInventory[8].value : 0,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(9, 'days').format('DD-MMM')}`]: oData.listInventory[9].value > 0 ? oData.listInventory[9].value : 0,
+            });
+
+            let notRemain = oData.listInventory[oData.listInventory.length - 1].value;
+            if (oData.model == '1Y056BCBX1T#A') {
+                console.log(notRemain)
+            }
+            exportData.push({
+                SBU: oData.sbu,
+                MODEL: oData.model,
+                SEBANGO: oData.sebango,
+                CUSTOMER: '',
+                PLTYPE: '',
+                DESC: 'INV.NOT REMAIN',
+                TTL: notRemain,
+                [`${moment(dtExcel.format('YYYYMMDD')).format('DD-MMM')}`]: oData.listInventory[0].value > 0 ? 0 : oData.listInventory[0].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(1, 'days').format('DD-MMM')}`]: oData.listInventory[1].value > 0 ? 0 : oData.listInventory[1].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(2, 'days').format('DD-MMM')}`]: oData.listInventory[2].value > 0 ? 0 : oData.listInventory[2].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(3, 'days').format('DD-MMM')}`]: oData.listInventory[3].value > 0 ? 0 : oData.listInventory[3].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(4, 'days').format('DD-MMM')}`]: oData.listInventory[4].value > 0 ? 0 : oData.listInventory[4].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(5, 'days').format('DD-MMM')}`]: oData.listInventory[5].value > 0 ? 0 : oData.listInventory[5].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(6, 'days').format('DD-MMM')}`]: oData.listInventory[6].value > 0 ? 0 : oData.listInventory[6].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(7, 'days').format('DD-MMM')}`]: oData.listInventory[7].value > 0 ? 0 : oData.listInventory[7].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(8, 'days').format('DD-MMM')}`]: oData.listInventory[8].value > 0 ? 0 : oData.listInventory[8].value,
+                [`${moment(dtExcel.format('YYYYMMDD')).add(9, 'days').format('DD-MMM')}`]: oData.listInventory[9].value > 0 ? 0 : oData.listInventory[9].value,
             })
         });
         const csvConfig = mkConfig({
@@ -160,11 +184,9 @@ function Warning() {
         const csv = generateCsv(csvConfig)(exportData);
         download(csvConfig)(csv);
     }
-
-
     return (
-        <>
-            <Stack px={6} pb={6} pt={3} gap={2}>
+        <div className='h-[100%] overflow-hidden'>
+            <Stack px={6} pb={6} pt={3} gap={2} className=' h-[100%]'>
                 <Grid container className='bg-yellow-200 border-2 border-black'>
                     <Grid item xs={2}></Grid>
                     <Grid item xs={8} className='flex justify-center items-center py-[8px] text-[10px] xs:text-[10px] sm:text-[18px] md:text-[24px] lg:text-[26px] xl:text-[26px]'>
@@ -183,7 +205,7 @@ function Warning() {
                     </Grid>
                 </Grid>
 
-                <Grid container spacing={1}>
+                <Grid container spacing={1} className='h-[100%]'>
                     <Grid item xs={12}>
                         <Stack width={'100%'} justifyContent={'space-between'} direction={'row'}>
                             <Button startIcon={<Search />} variant='contained' size='small' onClick={handleSearch}>Search</Button>
@@ -192,9 +214,9 @@ function Warning() {
                             </Stack>
                         </Stack>
                     </Grid>
-                    <Grid item xs={12} >
-                        <div className='overflow-y-scroll  border border-black border-x-0'>
-                            <table className='table-auto border-black border overflow-scroll w-full border-collapse  bg-white'>
+                    <Grid item xs={12} className='h-[100%]'>
+                        <div className='overflow-y-scroll  border border-black border-x-0 h-[100%]'>
+                            <table className='table-auto border-black border overflow-scroll w-full border-collapse  bg-white' id='tbWarning'>
                                 <thead>
                                     <tr>
                                         {
@@ -228,7 +250,9 @@ function Warning() {
                                                 data.map((oData: MWarning, iData: number) => {
                                                     let tSaleOfDay: number = oData.listSale.map(o => o.value).reduce((a, b) => a + b);
                                                     let oSaleFirstDay: MData[] = oData.listSale.filter(o => o.date == dtNow);
-                                                    let tInv: number = (oData.listInventory.length && typeof oData.listInventory[0] != 'undefined') ? Number(oData.listInventory[0].value) : 0;
+                                                    // let tInv: number = (oData.listInventory.length && typeof oData.listInventory[0] != 'undefined') ? Number(oData.listInventory[0].value) : 0;
+                                                    let tInv: number = oData.inventory;
+                                                    let haveInbound: boolean = oData.inbound > 0 ? true : false;
                                                     return ['SALE PLAN & FORECASE', 'INV.REMAIN', 'INV.NOT REMAIN'].map((oType: string, iType: number) => {
                                                         return <tr key={iType}>
                                                             {
@@ -257,7 +281,14 @@ function Warning() {
                                                                     </td>
                                                                 </Fragment> : <Fragment key={(iData + iType)}></Fragment>
                                                             }
-                                                            <td className={`${iType == 2 && 'border  border-t-0'} font-semibold border-black ${iType == 0 ? 'bg-blue-200' : (iType == 1 ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-600')}`}>{oType}</td>
+                                                            <td className={`${iType == 2 && 'border  border-t-0'} font-semibold border-black ${iType == 0 ? 'bg-blue-200' : (iType == 1 ? 'bg-green-200 text-green-700' : 'bg-red-200 text-red-600')}`} onClick={() => alert(1)}>
+                                                                {
+                                                                    (haveInbound == true && iType == 1) ? <div className='flex gap-1'>
+                                                                        <span>{oType}</span>
+                                                                        {haveInbound == true && <span className='text-black font-bold bg-white pl-1 pr-2 rounded-md shadow-lg  drop-shadow-md'>+{oData.inbound} IN WH</span> }
+                                                                    </div> : <span>{oType}</span>
+                                                                }
+                                                            </td>
                                                             {
                                                                 iType == 0 ? <td className='border-l border-black text-right pr-1 font-bold '>{tSaleOfDay.toLocaleString('en')}</td> : <></>
                                                             }
@@ -313,7 +344,7 @@ function Warning() {
                     </Grid>
                 </Grid>
             </Stack>
-        </>
+        </div>
     )
 }
 

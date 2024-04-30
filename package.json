@@ -1,7 +1,7 @@
 {
     "name": "dci-ukeharai-inventory-app",
     "private": true,
-    "version": "7.0.26",
+    "version": "7.0.30",
     "type": "module",
     "proxy": "192.168.226.8:80",
     "scripts": {

@@ -1,0 +1,5 @@
+table#tbWarning th {
+    position: sticky !important;
+    top: 0 !important;
+    background: red;
+}
