@@ -29,6 +29,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 const Index = () => {
+    const [heightTable, setHeightTable] = useState<number>(500);
     const base = import.meta.env.VITE_PATH;
     const [filename, setFileName] = useState<string>('');
     const context: MContext = useContext(ThemeContext);
@@ -41,7 +42,7 @@ const Index = () => {
     });
     const redux: MRedux = useSelector((state: any) => state.reducer);
     let empcode = '';
-    if (typeof redux.emp == 'undefined' &&  redux.emp == undefined || redux.emp.EmpCode == undefined  ) {
+    if (typeof redux.emp == 'undefined' && redux.emp == undefined || redux.emp.EmpCode == undefined) {
         navigate(`/${base}/login`);
     } else {
         empcode = redux.emp.EmpCode;
@@ -213,6 +214,7 @@ const Index = () => {
             filterVariant: 'multi-select',
             enableColumnActions: false,
             enableColumnOrdering: false,
+            // muiTableContainerProps: { sx: { maxHeight: '400px' } },
             muiTableBodyCellProps: ({
                 cell
             }) => ({
@@ -326,8 +328,30 @@ const Index = () => {
     const [dataDef, setDataDef] = useState<MActPlans[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [sorting, setSorting] = useState<MRT_SortingState>([]);
+    const handleResize = () => {
+        setHeightTable(handleChangeWidth());
+    }
+    useEffect(() => {
+        window.addEventListener("resize", handleResize, false);
+    }, [])
+
+    function handleChangeWidth() {
+        let height: number = 500;
+        try {
+            let heightOutlet = document.getElementById('outlet').clientHeight;
+            let heightGroupFilter = document.getElementById('group-search').clientHeight;
+            console.log(heightOutlet, heightGroupFilter)
+            height = heightOutlet - heightGroupFilter;
+            height = height - 100;
+        } catch {
+            height = 500;
+        }
+        return height;
+    }
+
     useEffect(() => {
         if (data.length) {
+            setHeightTable(handleChangeWidth());
             setIsLoading(false);
         }
     }, [data]);
@@ -414,6 +438,7 @@ const Index = () => {
         enableHiding: false,
         enableRowVirtualization: true,
         enableColumnVirtualization: true,
+        muiTableContainerProps: { sx: { maxHeight: `${heightTable}px` } },
         onSortingChange: setSorting,
         state: { isLoading, sorting },
         rowVirtualizerInstanceRef, //optional
@@ -434,8 +459,8 @@ const Index = () => {
             </Button>
         )
     });
-    return <div className='p-6 h-full' >
-        <div className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
+    return <div className='p-6 h-full' id='body_warning'>
+        <div id='group-search' className='group-search flex gap-2 px-4 py-4 bg-white rounded-lg mb-3' style={{ border: '1px solid #ddd' }} >
             <div>
                 <Typography>Year</Typography>
                 <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
@@ -480,7 +505,7 @@ const Index = () => {
                         <div className='bg-white w-full flex justify-center rounded-lg py-3' style={{ border: '1px solid #ddd' }}>
                             <Typography >ไม่พบข้อมูลที่คุณค้นหา</Typography>
                         </div>
-                    </Stack> : <div className='tb-ukeharai'>
+                    </Stack> : <div className='tb-ukeharai '>
                         <MaterialReactTable table={table} />
                     </div>
                 )

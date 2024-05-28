@@ -16,27 +16,26 @@ function DialogAdjustInventoryMain(props: any) {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<boolean>(false);
     const [val, setVal] = useState<string>('0');
-    const [monthSelected, setMonthSelected] = useState<string>(moment().add(-1,'month').format('MM'));
+    const [monthSelected, setMonthSelected] = useState<string>('02');
     useEffect(() => {
         if (open && Object.keys(model).length) {
             initData();
-            setMonthSelected(moment().add(-1,'month').format('MM'));
+            // setMonthSelected(moment().add(-1, 'month').format('MM'));
             setLoading(false);
         } else {
-            setMonthSelected(moment().add(-1,'month').format('MM'))
+            // setMonthSelected(moment().add(-1, 'month').format('MM'))
         }
     }, [open]);
     async function initData() {
-        if(model.modelCode != undefined){
+        if (model.modelCode != undefined) {
             let res: EkbWipPartStock = await API_GET_ADJUST_INVENTORY_MAIN({ model: model.modelCode, wcno: '999', ym: `${moment().format('YYYY')}${monthSelected}`, val: val.toString(), empcode: empcode });
             if (Object.keys(res).length && typeof res.bal != 'undefined' && res.bal != null) {
                 setVal(res.bal.toString());
-                // setLoading(false);
-            }else{
+            } else {
                 setVal('0');
             }
         }
-        
+
     }
     async function handleSaveInventoryMain() {
         if (empcode != '') {
@@ -44,7 +43,6 @@ function DialogAdjustInventoryMain(props: any) {
                 return false;
             }
             let res: any = await API_ADJUST_INVENTORY_MAIN({ model: model.modelCode, wcno: '999', ym: `${moment().format('YYYY')}${monthSelected}`, val: val.toString(), empcode: empcode });
-            // console.log(res)
             if (res?.status) {
                 setError(false);
             } else {
@@ -73,10 +71,6 @@ function DialogAdjustInventoryMain(props: any) {
                                         <Typography>MODEL :</Typography>
                                         <Typography className='font-bold'>{model.modelCode}</Typography>
                                     </Stack>
-                                    {/* <Stack direction={'row'} gap={1}>
-                                        <Typography>WCNO :</Typography>
-                                        <Typography className='font-bold'>{model.wcno}</Typography>
-                                    </Stack> */}
                                     <Stack direction={'row'} gap={1}>
                                         <Typography>SEBANGO :</Typography>
                                         <Typography className='font-bold'>{model.sebango}</Typography>
@@ -87,15 +81,16 @@ function DialogAdjustInventoryMain(props: any) {
                                         Month
                                     </InputLabel>
                                     <NativeSelect
+                                        disabled={true}
                                         onChange={(e: any) => {
                                             setMonthSelected(e.target.value)
                                         }}
                                         defaultValue={monthSelected}
                                     >
                                         {
-                                            [...Array(2)].map((o: string, i: number) => {
-                                                let month = (i + 1).toLocaleString('en', { minimumIntegerDigits: 2 })
-                                                return <option key={o} value={month}>{month} - {moment(month, 'MM').format('MMMM').toUpperCase()}</option>
+                                            ['2'].map((o: string, i: number) => {
+                                                let month = Number(o).toLocaleString('en', { minimumIntegerDigits: 2 })
+                                                return <option key={o+i} value={month}>{month} - {moment(month, 'MM').format('MMMM').toUpperCase()}</option>
                                             })
                                         }
                                     </NativeSelect>

@@ -24,7 +24,7 @@ function Layout() {
                 <ToolbarComponent />
                 <div className="h-[100%]  bg-[#f9f9f9] px-[18px] py-[18px] flex flex-col gap-2">
                     <Breadcrumb />
-                    <div className="bg-white h-full w-full card-mtr overflow-x-scroll max-h-[90%]">
+                    <div className="bg-white h-full w-full card-mtr overflow-x-scroll max-h-[100%]" id = 'outlet'>
                         <Outlet />
                     </div>
                 </div>

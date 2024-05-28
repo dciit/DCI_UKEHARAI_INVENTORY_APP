@@ -55,6 +55,7 @@ export interface MActPlans {
     inventoryBalance: InventoryBalance[];
     inventoryBalancePltype: InventoryBalancePltype[];
     listInventoryPlanning: MData[];
+    totalInventoryPlanning:number;
     listSaleForeCaseAllCustomer: MData[];
     listDelivery: ListDelivery[];
     listInventoryPlanningMain: ListInventoryPlanningMain[];

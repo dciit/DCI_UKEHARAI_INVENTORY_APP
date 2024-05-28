@@ -180,7 +180,6 @@ export const initRowTotalCurPlnAllLine = (data: MActPlans, ym: string) => {
 }
 export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
     let mm:string = ym.substring(4,6);
-    console.log(mm)
     const Row: MActPlans = {
         ym: '',
         model: '',
@@ -258,9 +257,6 @@ export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
     let total = 0;
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        data.listActMain.map((a:any)=>{
-            console.log(a.shiftDate.substring(5,7))
-        })
         var index = data.listActMain.findIndex(o => o.shiftDate.substring(8, 11) == vDay && o.shiftDate.substring(5, 7) == mm && (o.model_No == data.modelCode || o.modelName == data.model.trim()) && o.lineName == wcno.toString());
         if (index != -1) {
             Row[`d${vDay}`] = data.listActMain[index].cnt;
@@ -671,7 +667,7 @@ export const initRowDelivery = (data: MActPlans, oDelivery: ListDelivery) => {
     Row.wcno = data.wcno;
     Row.modelCode = data.model.toString();
     Row.sebango = data.sebango;
-    Row.type = 'Delivery';
+    Row.type = 'Delivered';
     Row.customer = '';
     Row.pltype = oDelivery.pltype;
     Row.pltypeText = '';
@@ -1180,7 +1176,11 @@ export const initRowInventoryPlanning = (data: MActPlans, ym: string) => {
         Row[`d${dayLoop}`] = num;
         total = num;
     });
-    Row.total = total.toLocaleString('en');
+    try{
+        Row.total = data.totalInventoryPlanning.toLocaleString('en');
+    }catch{
+        Row.total = 0;
+    }
     return Row
 }
 
