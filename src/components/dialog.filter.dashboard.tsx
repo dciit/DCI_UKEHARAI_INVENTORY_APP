@@ -1,24 +1,32 @@
-import React, { useContext, useState } from 'react'
+import   { useContext, useState } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import SearchIcon from '@mui/icons-material/Search';
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import { Select, MenuItem, Stack, Typography } from '@mui/material'
+import { Select, MenuItem  } from '@mui/material'
 import moment from 'moment'
 import { MContext } from '../interface'
 import { ThemeContext } from '../router/Routers'
-
+import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 function DialogFilterDashboard(props: any) {
-    const { open, close, year, setYear, month, setMonth ,init} = props;
+    const { open, setOpen, year, setYear, month, setMonth, init } = props;
     const [rYear] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
     const context: MContext = useContext(ThemeContext);
     const _months = context.months;
     return (
-        <Dialog open={open} onClose={() => close(false)} fullWidth maxWidth='sm'>
+        <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth='sm'>
             <DialogTitle >
-
+                <div className='flex gap-2 flex-row items-center'>
+                    <div className='rounded-full bg-[#5c5fc8] text-[#fff]  w-[36px] h-[36px] flex items-center justify-center'>
+                        <FilterAltOutlinedIcon sx={{ fontSize: '20px' }} />
+                    </div>
+                    <div className='flex flex-col'>
+                        <span className='text-[18px]'>FILTER</span>
+                        <span className='text-[12px] text-[#939393]'>ค้นหาข้อมูล</span>
+                    </div>
+                </div>
             </DialogTitle>
             <DialogContent dividers>
                 <div className='group-search flex gap-2 p-2 bg-white rounded-lg mb-3 ' >
@@ -47,8 +55,11 @@ function DialogFilterDashboard(props: any) {
                 </div>
             </DialogContent>
             <DialogActions>
-                <Button variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]' onClick={() => close(false)}>Close</Button>
-                <Button variant='contained' className='bg-[#5c5fc8]' onClick={() => init()} startIcon={<SearchIcon />}>Search</Button>
+                <Button variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]' onClick={() => setOpen(false)}>Close</Button>
+                <Button variant='contained' className='bg-[#5c5fc8]' onClick={() => {
+                    init();
+                    setOpen(false);
+                }} startIcon={<SearchIcon />}>Search</Button>
             </DialogActions>
         </Dialog>
     )

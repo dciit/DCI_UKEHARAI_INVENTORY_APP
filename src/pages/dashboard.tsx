@@ -57,45 +57,13 @@ function Dashboard() {
     // }, [chartSale]);
     return (
         // <iframe src="http://192.168.226.38:3000/dashboard/snapshot/tD1jLyxkuVgfojUC5KcU3t6f3GBv6fSi?orgId=1" className='w-[100%] h-[100%]'></iframe>
-        <Grid container className="sticky top-0">
-            {/* <Grid item xs={12} px={3} pt={3} className="sticky top-0">
-                <div className='group-search flex gap-2 p-2 bg-white rounded-lg mb-3 ' style={{ border: '1px solid #ddd' }} >
-                    <div className="flex gap-2 items-center">
-                        <span>Year</span>
-                        <Select value={_year} size='small' onChange={(e) => setYear(e.target.value)} >
-                            {
-                                rYear.map((oYear: string, iYear: number) => {
-                                    return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                        <span>Month</span>
-                        <Select value={_month} size='small' onChange={(e: any) => {
-                            setMonth(e.target.value);
-                        }}>
-                            {
-                                _months.map((oMonth: string, iMonth: number) => {
-                                    return <MenuItem value={(iMonth + 1)} key={(iMonth + 1)}>{oMonth}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                    <Stack gap={1} direction={'row'} alignItems={'flex-end'}>
-                        <Typography>&nbsp;</Typography>
-                        <Button startIcon={<SearchIcon />} variant='contained' onClick={() => init()}>ค้นหา</Button>
-                    </Stack>
-                </div>
-            </Grid> */}
+        <Grid container className=" top-0 h-[100%]">
             {
-                load ? <Grid item xs={12} className='relative '>
-                    <Stack direction={'column'} gap={1} justifyContent={'center'} alignItems={'center'}>
-                        <Typography>กำลังโหลดข้อมูล ...</Typography>
-                        <CircularProgress />
-                    </Stack>
-                </Grid> :
-                    <Grid item xs={12}>
+                load ? <div className="flex flex-col items-center w-[100%] h-[100%] justify-center">
+                    <span>กำลังโหลดข้อมูล</span>
+                    <CircularProgress />
+                </div> :
+                    <Grid item xs={12} className="relative">
                         <div className="absolute top-5 right-5  bg-[#5c5fc8] cursor-pointer select-none hover:scale-105 duration-300 transition-all shadow-md text-white px-3 py-1 rounded-md" onClick={() => setOpenDialogFilter(true)}>
                             <FilterListIcon />
                             <span className="ml-2">Filter</span>
