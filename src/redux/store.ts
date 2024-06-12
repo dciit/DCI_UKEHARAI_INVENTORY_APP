@@ -3,8 +3,9 @@ import { thunk } from 'redux-thunk'
 import rootReducer from './rootReducer'
 import { persistStore, persistReducer } from 'redux-persist'
 import storage from 'redux-persist/lib/storage'
+import { base } from '../constant'
 const persistConfig = {
-    key: 'root',
+    key: `${base}-root`,
     storage,
 }
 declare global {

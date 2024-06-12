@@ -381,6 +381,7 @@ const Index = () => {
     async function initContent() {
         setIsLoading(true);
         const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
+        console.log(res);
         setDataDef(res.content);
         let data: any = initData(res.content, _year, `${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
         setData(data);
@@ -392,7 +393,7 @@ const Index = () => {
     }, [filename])
     const handleExportData = () => {
         let exportData = [];
-        data.forEach(o => {
+        data.forEach(o => { 
             if (o.type != 'empty') {
                 let exportRow = {
                     MODEL: o.modelCode,
@@ -400,7 +401,7 @@ const Index = () => {
                     TYPE: o.type,
                     GROUPMODEL: o.model,
                     SBU: o.sbu,
-                    LINE: o.line,
+                    LINE: o.wcno != null ? o.wcno : '',
                     CUSTOMER: o.customer,
                     PLTYPE: o.pltype
                 };
@@ -414,6 +415,8 @@ const Index = () => {
                 exportData.push(exportRow)
             }
         })
+        // console.log(data);
+        // console.log(exportData)
         const csv = generateCsv(csvConfig)(exportData);
         download(csvConfig)(csv);
     };

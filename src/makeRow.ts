@@ -179,7 +179,7 @@ export const initRowTotalCurPlnAllLine = (data: MActPlans, ym: string) => {
     return Row
 }
 export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
-    let mm:string = ym.substring(4,6);
+    let mm: string = ym.substring(4, 6);
     const Row: MActPlans = {
         ym: '',
         model: '',
@@ -1176,9 +1176,9 @@ export const initRowInventoryPlanning = (data: MActPlans, ym: string) => {
         Row[`d${dayLoop}`] = num;
         total = num;
     });
-    try{
+    try {
         Row.total = data.totalInventoryPlanning.toLocaleString('en');
-    }catch{
+    } catch {
         Row.total = 0;
     }
     return Row
@@ -1330,40 +1330,15 @@ export const initRowInventoryPlanningFinal = (data: MActPlans) => {
     Row.detail = '';
     Row.lastInventoryMain = data.lastInventoryMain;
     Row.menuAuto = '';
-    let total = 0;
-    let adjEkbPartStock = typeof data.lastInventoryMain?.bal != 'undefined' ? data.lastInventoryMain.bal : 0;
-    [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
-        var dayLoop: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        let filterInventoryMain = data.listActFinal.filter(o => o.prdymd == dayLoop);
-        let InventoryMain = 0;
-        if (filterInventoryMain.length) {
-            InventoryMain = filterInventoryMain[0].qty;
-        }
-        if (dayLoop == '01') {
-            let numSaleOfDay = 0;
-            numSaleOfDay = data.listSaleForecast.map(o => { return o[`d01`] }).reduce(function (a, b) { return a + b; }, 0);
-            adjEkbPartStock -= numSaleOfDay;
-            Row[`d${dayLoop}`] = adjEkbPartStock;
-        } else {
-            let PrevDay = (dayLoop - 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-            let numSaleOfDay = data.listSaleForecast.map(o => { return o[`d${dayLoop}`] }).reduce(function (a, b) { return a + b; }, 0); // Get Value Sale
-            let rInventoryMainPrevOneDay = data.listActFinal.filter(o => o.prdymd == PrevDay); // Array Inventory Main -1 Day 
-
-            let valInventory = 0;
-            if (rInventoryMainPrevOneDay.length) {
-                valInventory = rInventoryMainPrevOneDay[0].qty;
-            }
-            let InventoryHold = 0;
-            if (dayLoop == moment().format('DD') && data.listHoldInventory.length) {
-                InventoryHold = data.listHoldInventory[0].balstk;
-            }
-            adjEkbPartStock = (parseInt(adjEkbPartStock) + parseInt(valInventory) + parseInt(InventoryHold)) - parseInt(numSaleOfDay);
-            let InventoryPlanning = adjEkbPartStock;
-            Row[`d${dayLoop}`] = InventoryPlanning;
-        }
-
-    });
-    Row.total = adjEkbPartStock.toLocaleString('en');
+    let rInventoryMainOrFinal = [];
+    if (typeof data.listInventoryPlanningMainOrFinal != 'undefined') {
+        rInventoryMainOrFinal = data.listInventoryPlanningMainOrFinal;
+    }
+    rInventoryMainOrFinal.map((o: MInventory, i: number) => {
+        let day: string = (i + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
+        Row[`d${day}`] = o.cnt != '' ? o.cnt : '';
+    })
+    Row.total = data.inventoryPlanningMainOrFinalEnd;
     return Row
 }
 export const initRowInventoryPlanningMain = (data: MActPlans) => {

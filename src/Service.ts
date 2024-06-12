@@ -1,9 +1,10 @@
 
 import Axios from "axios";
 import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln, MUpdateInventoryMain } from "./interface";
+import { api_base } from "./constant";
 
 const http = Axios.create({
-    baseURL: import.meta.env.VITE_API,
+    baseURL: api_base,
     headers: {
         'Content-Type': 'application/json;charset=UTF-8;json/html; charset=UTF-8',
         // 'Authorization': 'Bearer ' + localStorage.getItem('jwt')

@@ -55,10 +55,12 @@ export interface MActPlans {
     inventoryBalance: InventoryBalance[];
     inventoryBalancePltype: InventoryBalancePltype[];
     listInventoryPlanning: MData[];
-    totalInventoryPlanning:number;
+    totalInventoryPlanning: number;
     listSaleForeCaseAllCustomer: MData[];
     listDelivery: ListDelivery[];
     listInventoryPlanningMain: ListInventoryPlanningMain[];
+    listInventoryPlanningMainOrFinal?: MInventory[];
+    inventoryPlanningMainOrFinalEnd?: number[];
     warning: boolean; // สำหรับหน้า Warning 1 = Inventory balance ติดลบ 
     d01: number;
     d02: number;
@@ -92,7 +94,7 @@ export interface MActPlans {
     d30: number;
     d31: number;
     total: string;
-    totalInventoryPlanningMain : number;
+    totalInventoryPlanningMain: number;
 }
 
 export interface ListDelivery {
