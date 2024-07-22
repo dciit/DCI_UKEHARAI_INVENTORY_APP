@@ -12,7 +12,7 @@ const http = Axios.create({
 });
 
 const httpHR = Axios.create({
-    baseURL: import.meta.env.VITE_API_HR,
+    baseURL: api_base,
     headers: {
         'Content-Type': 'application/json;charset=UTF-8;json/html; charset=UTF-8',
         // 'Authorization': 'Bearer ' + localStorage.getItem('jwt')
@@ -21,15 +21,20 @@ const httpHR = Axios.create({
 
 
 
-export function API_GET_WARNING(ymd: string) {
+export function API_GET_WARNING() {
     return new Promise<any>(resolve => {
-        http.post(`/warning/get`, {
-            ym: ymd
-        }).then((res) => {
+        http.get(`/warning/get`).then((res) => {
             resolve(res.data);
         })
     })
 }
+// export function API_GET_WARNING(ym: string, type: string) {
+//     return new Promise<any>(resolve => {
+//         http.get(`/warning/get/${ym}/${type}`).then((res) => {
+//             resolve(res.data);
+//         })
+//     })
+// }
 
 export function API_INIT_ACT_PLAN(ymd: string) {
     return new Promise<MGetActPlan>(resolve => {

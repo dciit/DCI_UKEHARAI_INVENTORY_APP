@@ -255,9 +255,10 @@ export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
     Row.pltypeText = '';
     Row.detail = '';
     let total = 0;
+    
     [...Array(31)].map((oDay: ListCurpln, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        var index = data.listActMain.findIndex(o => o.shiftDate.substring(8, 11) == vDay && o.shiftDate.substring(5, 7) == mm && (o.model_No == data.modelCode || o.modelName == data.model.trim()) && o.lineName == wcno.toString());
+        var index = data.listActMain.findIndex(o => o.shiftDate.substring(8, 11) == vDay && o.shiftDate.substring(5, 7) == mm  && o.lineName == wcno.toString());
         if (index != -1) {
             Row[`d${vDay}`] = data.listActMain[index].cnt;
             total += data.listActMain[index].cnt;
@@ -1153,7 +1154,8 @@ export const initRowInventoryPlanning = (data: MActPlans, ym: string) => {
         listActFinal: [],
         listPDTInventory: [],
         inventoryBalance: [],
-        inventoryBalancePltype: []
+        inventoryBalancePltype: [],
+        totalInventoryPlanning: 0
     };
     Row.sbu = data.sbu;
     Row.model = data.modelGroup;
@@ -1181,6 +1183,7 @@ export const initRowInventoryPlanning = (data: MActPlans, ym: string) => {
     } catch {
         Row.total = 0;
     }
+    Row.totalInventoryPlanning = Row.total;
     return Row
 }
 
@@ -1339,6 +1342,7 @@ export const initRowInventoryPlanningFinal = (data: MActPlans) => {
         Row[`d${day}`] = o.cnt != '' ? o.cnt : '';
     })
     Row.total = data.inventoryPlanningMainOrFinalEnd;
+    Row.totalInventoryPlanningMain = Row.total;
     return Row
 }
 export const initRowInventoryPlanningMain = (data: MActPlans) => {
@@ -1420,6 +1424,7 @@ export const initRowInventoryPlanningMain = (data: MActPlans) => {
     if (typeof data.totalInventoryPlanningMain != 'undefined') {
         Row.total = data.totalInventoryPlanningMain.toLocaleString('en');
     }
+    Row.totalInventoryPlanningMain = Row.total.toString().replace(',', '');
     return Row
 }
 

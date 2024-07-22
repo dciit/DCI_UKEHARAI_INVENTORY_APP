@@ -95,6 +95,7 @@ export interface MActPlans {
     d31: number;
     total: string;
     totalInventoryPlanningMain: number;
+    totalInventoryPlanningFinal: number;
 }
 
 export interface ListDelivery {

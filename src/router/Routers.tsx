@@ -61,12 +61,15 @@ const Routers = () => {
                         <Route path={`${base}`} element={<Index />} />
                         <Route path={`${base}/*`} element={<Index />} />
                         <Route path={`${base}/ukeharai`} element={<Index />} />
+                        {/* <Route path={`${base}/warning/:mode`} element={<Warning />} /> */}
                         <Route path={`${base}/warning`} element={<Warning />} />
                         <Route path={`${base}/dashboard`} element={<Dashboard />} />
                     </Route>
                     <Route path={`${base}/*`} element={<NotFound />} />
                     <Route path={`${base}/login`} element={<Login />} />
+                    {/* <Route path={`${base}/view/warning/:mode`} element={<Warning />} /> */}
                     <Route path={`${base}/view/warning`} element={<Warning />} />
+                    <Route path={`${base}/view/dashboard`} element={<Dashboard />} />
                     {/* <Route path={`${base}/warning/pdf`} element={<FormWarningPDF />} /> */}
                 </Routes>
             </BrowserRouter>

@@ -1,18 +1,19 @@
 // @ts-nocheck
 import { Search } from '@mui/icons-material';
-import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Stack, Typography } from '@mui/material'
+import { Box, Button, ButtonGroup, CircularProgress, Grid, IconButton, Stack, Switch, Typography } from '@mui/material'
 import moment from 'moment'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { MActPlans, MData } from '../interface';
 import { API_GET_WARNING, API_INIT_ACT_PLAN, API_WARNING_EXCEL } from '../Service';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import ExcelWarning from '../components/warning/form.pdf.comp';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { download, generateCsv, mkConfig } from 'export-to-csv';
 import { usePDF } from 'react-to-pdf';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import { useReactToPrint } from 'react-to-print';
 import { makeStyles } from '@material-ui/core';
+import SyncAltIcon from '@mui/icons-material/SyncAlt';
 export interface MWarning {
     model: string;
     sbu: string;
@@ -67,6 +68,8 @@ const COLORS = [
     'bg-[#dddddd]'
 ];
 function Warning() {
+    const { mode } = useParams();
+    const [inventoryMode, setInventoryMode] = useState<boolean>(mode);
     const rModelGroup: string[] = ['ALL', '1YC', '2YC', 'SCR', 'ODM'];
     const [modelGroup, setModelGroup] = useState<string>(rModelGroup[0]);
     const refPDF = useRef(null);
@@ -85,9 +88,9 @@ function Warning() {
     const dtExcel = moment();
     async function handleSearch() {
         setLoad(true);
-        let res = await API_GET_WARNING(ym);
+        // let res = await API_GET_WARNING(ym, inventoryMode);
+        let res = await API_GET_WARNING(ym, inventoryMode);
         let customer: string[] = [];
-        console.log(modelGroup)
         if (modelGroup == '1YC' || modelGroup == '2YC') {
             res = res.filter((o: MWarning) => o.model.substring(0, 1) == modelGroup.substring(0, 1));
         } else if (modelGroup == 'SCR') {
@@ -115,6 +118,7 @@ function Warning() {
     useEffect(() => {
         if (once == true) {
             init();
+            console.log('init')
         }
     }, [once]);
     async function init() {
@@ -212,6 +216,9 @@ function Warning() {
             }
         }
     })
+    const handleChangeModeInventory = async () => {
+
+    }
 
     return (
         <div className='h-[100%] '>
@@ -236,20 +243,41 @@ function Warning() {
 
                 <Grid container spacing={1} className='h-[100%]'>
                     <Grid item xs={12}>
-                        <Stack width={'100%'} justifyContent={'space-between'} direction={'row'}>
-                            <Button startIcon={<Search />} variant='contained' size='small' onClick={handleSearch}>Search</Button>
-                            <div className='flex'>
+
+                        <div  className='w-full grid grid-cols-6'>
+                            <div className='col-span-2 gap-2 flex items-center '>
+                                {/* <Button startIcon={<Search />} className='bg-[#5c5fc8] text-white px-[16px] shadow-md hover:scale-105 transition-all duration-300 hover:opacity-95' size='small' onClick={handleSearch}>Search</Button> */}
+                                {
+                                    inventoryMode == 'realtime' && <div class="relative inline-flex gap-3 h-full shadow-md">
+                                        <div class={`box-inventory-realtime flex items-center px-6 uppercase font-semibold `} disabled="">
+                                            Inventory real-time
+                                            {/* <Switch
+                                                color='secondary'
+                                                checked={inventoryMode}
+                                                onChange={handleChangeModeInventory}
+                                                inputProps={{ 'aria-label': 'controlled' }}
+                                            /> */}
+                                        </div>
+                                        <div className='flex items-center px-6 gap-3 rounded-md bg-[#5c5fc8] text-white cursor-pointer select-none'>
+                                            <span className='drop-shadow-lg'>Change Inv. 07:50 AM</span>
+                                            <SyncAltIcon />
+                                        </div>
+                                    </div>
+                                }
+
+                            </div>
+                            <div className=' col-span-2 flex items-center  justify-center'>
                                 {
                                     rModelGroup.map((oModelGroup: string, iModelGroup: number) => {
-                                        return <div key={iModelGroup} className={`${(oModelGroup == modelGroup) && 'bg-[#1976d2] text-white'} cursor-pointer hover:bg-[#1976d24d]  hover:font-semibold duration-100 transition-all border-[#1976d2]  ${oModelGroup != modelGroup && 'text-[#1976d2]'} select-none  border px-6 py-2 ${(iModelGroup > 0 && iModelGroup != (rModelGroup.length - 1)) && 'border-r-0'} ${iModelGroup == 0 ? 'rounded-l-lg border-r-0' : ''} ${(iModelGroup == (rModelGroup.length - 1)) ? 'rounded-r-lg' : ''}`} onClick={() => setModelGroup(oModelGroup)}>{oModelGroup}</div>
+                                        return <div key={iModelGroup} className={`${(oModelGroup == modelGroup) && 'bg-[#5c5fc8] text-white'} cursor-pointer hover:bg-[#5c5fc84d]  hover:font-semibold duration-100 transition-all border-[#5c5fc8]  ${oModelGroup != modelGroup && 'text-[#5c5fc8]'} select-none  border px-6 py-2 ${(iModelGroup > 0 && iModelGroup != (rModelGroup.length - 1)) && 'border-r-0'} ${iModelGroup == 0 ? 'rounded-l-lg border-r-0' : ''} ${(iModelGroup == (rModelGroup.length - 1)) ? 'rounded-r-lg' : ''}`} onClick={() => setModelGroup(oModelGroup)}>{oModelGroup}</div>
                                     })
                                 }
                             </div>
-                            <Stack direction={'row'} gap={1}>
+                            <div className='col-span-2 flex gap-2 justify-end'>
                                 <Button startIcon={<PictureAsPdfIcon />} color='warning' variant='contained' onClick={() => handlePrint()}>PDF</Button>
                                 <Button startIcon={<FileUploadIcon />} variant='contained' color='success' onClick={handleExcel}>Export</Button>
-                            </Stack>
-                        </Stack>
+                            </div>
+                        </div>
                     </Grid>
                     <Grid item xs={12} className='h-[100%]'>
                         <div className='overflow-y-scroll  border border-black border-x-0 h-[100%]'>
@@ -331,10 +359,17 @@ function Warning() {
                                                                 }
                                                             </td>
                                                             {
-                                                                iType == 0 ? <td className='border-l border-black text-right pr-1 font-bold '>{tSaleOfDay.toLocaleString('en')}</td> : <></>
+                                                                iType == 0 ? <td className='border-l bg-blue-100 border-black text-right pr-1 font-bold '>{tSaleOfDay.toLocaleString('en')}</td> : <></>
                                                             }
                                                             {
-                                                                iType == 1 ? <td className='border-l bg-green-200 border-black text-right pr-1 font-bold text-green-800'>{tInv.toLocaleString('en')}</td> : <></>
+                                                                iType == 1 ? <td className=' border-l bg-green-200 border-black text-right pr-1 font-bold text-green-800'>
+                                                                    <div className='flex flex-row items-center'>
+                                                                        {/* <div className={`flex-none border-t  flex items-center  gap-2 ${mode == 'realtime' && 'box-inventory-realtime px-3 rounded-md'}`}>
+                                                                            <span className='text-white font-semibold uppercase'>Real-time</span>
+                                                                        </div> */}
+                                                                        <span className='grow'>{tInv.toLocaleString('en')}</span>
+                                                                    </div>
+                                                                </td> : <></>
                                                             }
                                                             {
                                                                 iType == 2 ? <td className={` border-b border-black text-right pr-1 font-bold ${oData.total < 0 && 'bg-red-200 text-red-600'}`}>{oData.total < 0 && `${oData.total.toLocaleString('en')}`}</td> : <></>

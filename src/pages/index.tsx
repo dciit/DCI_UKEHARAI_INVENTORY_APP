@@ -340,7 +340,6 @@ const Index = () => {
         try {
             let heightOutlet = document.getElementById('outlet').clientHeight;
             let heightGroupFilter = document.getElementById('group-search').clientHeight;
-            console.log(heightOutlet, heightGroupFilter)
             height = heightOutlet - heightGroupFilter;
             height = height - 100;
         } catch {
@@ -393,7 +392,7 @@ const Index = () => {
     }, [filename])
     const handleExportData = () => {
         let exportData = [];
-        data.forEach(o => { 
+        data.map((o:MActPlans) => {
             if (o.type != 'empty') {
                 let exportRow = {
                     MODEL: o.modelCode,
@@ -405,13 +404,40 @@ const Index = () => {
                     CUSTOMER: o.customer,
                     PLTYPE: o.pltype
                 };
-                let total: number = 0;
-                [...Array(31)].map((oDay: any, iDay: number) => {
-                    let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
-                    exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
-                    total += parseInt(val != '' ? val : '0');
-                });
-                exportRow['TOTAL'] = total;
+                if (o.type == 'Total Sales Plan&Forecast' || o.type == 'Sales Plan&Forecast' || o.type == 'Delivered' || o.type == 'Total Inbound Finishgoods' || o.type == 'Current Plan' || o.type == 'Result_Main Assembly' || o.type == 'Result_Final Line' || o.type == 'Total Current Plan') {
+                    let total: number = 0;
+                    [...Array(31)].map((oDay: any, iDay: number) => {
+                        let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
+                        exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
+                        total += parseInt(val != '' ? val : '0');
+                    });
+                    exportRow['TOTAL'] = total;
+                } else if (o.type == 'Total Inventory' || o.type == 'Inventory' || o.type == 'Inventory (Balance)' || o.type == 'Inventory Balance (Pltype)' || o.type == 'Inventory (Hold)' || o.type == 'Inventory (PDT)') {
+                    
+                    let total: number = 0;
+                    [...Array(31)].map((oDay: any, iDay: number) => {
+                        let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
+                        exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
+                        total = parseInt(val != '' ? val : '0') > 0 ? parseInt(val != '' ? val : '0') : total;
+                    });
+                    exportRow['TOTAL'] = total;
+                } else if (o.type == 'Inventory Planning') {
+                    let total: number = 0;
+                    [...Array(31)].map((oDay: any, iDay: number) => {
+                        let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
+                        exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
+                        total = parseInt(val != '' ? val : '0') > 0 ? parseInt(val != '' ? val : '0') : total;
+                    });
+                    exportRow['TOTAL'] = o.totalInventoryPlanning;
+                } else if (o.type == 'Inventory Planning (Main)' || o.type == 'Inventory Planning (Final)') {
+                    let total: number = 0;
+                    [...Array(31)].map((oDay: any, iDay: number) => {
+                        let val: string = o[`d${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`];
+                        exportRow[`D${(iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`] = val == '' ? 0 : val;
+                        total = parseInt(val != '' ? val : '0') > 0 ? parseInt(val != '' ? val : '0') : total;
+                    });
+                    exportRow['TOTAL'] = o.totalInventoryPlanningMain.toString().replace(',','');
+                }
                 exportData.push(exportRow)
             }
         })
