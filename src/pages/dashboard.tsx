@@ -43,6 +43,7 @@ function Dashboard() {
         setYm(`${_year}${_month.toLocaleString('en', { minimumIntegerDigits: 2 })}`);
     }, [_year, _month]);
     async function init() {
+        setLoad(true);
         let res: MChart[] = await API_CHART_DATA({ ym: ym });
         setChart(res);
     }
@@ -77,7 +78,7 @@ function Dashboard() {
             }
             setLoad(false);
         }
-    }, [chart])
+    }, [chart]);
     return (
         <Grid container className=" top-0 h-[100%] ">
             {
@@ -85,10 +86,24 @@ function Dashboard() {
                     <span>กำลังโหลดข้อมูล</span>
                     <CircularProgress />
                 </div> :
-                    <Grid item xs={12} className="relative">
-                        <div className="absolute top-5 right-5  bg-[#5c5fc8] cursor-pointer select-none hover:scale-105 duration-300 transition-all shadow-md text-white px-3 py-1 rounded-md" onClick={() => setOpenDialogFilter(true)}>
-                            <FilterListIcon />
-                            <span className="ml-2">Filter</span>
+                    <Grid item xs={12}  >
+
+                        <div className='flex justify-between w-full mt-2 pl-3 sticky top-3 z-[9999]'>
+                            <div className='border rounded-md px-6 py-2 text-red-500 font-semibold drop-shadow-sm shadow-sm bg-white'>Secret</div>
+                            <div className="pr-3 flex gap-2 items-center" onClick={() => setOpenDialogFilter(true)}>
+                                <div className="bg-black text-white pl-4 rounded-lg py-1 pr-4 flex items-center cursor-pointer" >
+                                    <div className="opacity-75 pr-3">Year : </div>
+                                    <span>{_year}</span>
+                                </div>
+                                <div className="bg-black text-white pl-4 rounded-lg py-1 pr-4 flex items-center cursor-pointer" >
+                                    <div className="opacity-75 pr-3">Month :</div>
+                                    <span>{_months[_month - 1]} ({_month.toString().padStart(0, 2)})</span>
+                                </div>
+                                <div className=" bg-[#5c5fc8] select-none hover:scale-105 duration-300 transition-all shadow-md text-white px-3 py-1 rounded-md cursor-pointer" >
+                                    <FilterListIcon />
+                                    <span className="ml-2">Filter</span>
+                                </div>
+                            </div>
                         </div>
                         <Grid container height={'100%'}>
                             {
@@ -185,11 +200,6 @@ function Dashboard() {
                     </Grid>
             }
             <DialogFilterDashboard open={openDialogFilter} setOpen={setOpenDialogFilter} init={init} year={_year} month={_month} setYear={setYear} setMonth={setMonth} />
-
-
-
-
-
         </Grid>
     )
 }

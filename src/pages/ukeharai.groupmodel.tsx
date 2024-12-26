@@ -57,7 +57,6 @@ function UkeharaiGroupModel() {
                                         </tr>
                                         {
                                             rLine.sort().map((oLine: number) => {
-                                            console.log(rLine)
                                                 return <tr>
                                                     <td>{oLine}</td>
                                                 </tr>

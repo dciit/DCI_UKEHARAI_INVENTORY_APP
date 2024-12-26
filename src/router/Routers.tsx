@@ -13,13 +13,15 @@ import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
 import NotificationImportantOutlinedIcon from '@mui/icons-material/NotificationImportantOutlined';
 import FitbitOutlinedIcon from '@mui/icons-material/FitbitOutlined';
 import Dashboard from "../pages/dashboard";
-import AppsOutlinedIcon from '@mui/icons-material/AppsOutlined';
+import ResultPage from "../pages/result";
+import AgGrid from "../pages/ag.grid";
 const context: MContext = {
     navMenu: [
-        { txt: 'planning', key: 'planning', type: 'main', icon: <AppsOutlinedIcon />, path: 'home' },
+        // { txt: 'planning', key: 'planning', type: 'main', icon: <AppsOutlinedIcon />, path: 'home' },
         { txt: 'ukeharai', key: 'ukeharai', type: 'child', path: 'ukeharai', icon: <FitbitOutlinedIcon /> },
         { txt: 'warning', key: 'warning', type: 'child', path: 'warning', icon: <NotificationImportantOutlinedIcon /> },
-        { txt: 'dashboard', key: 'dashboard', type: 'child', path: 'dashboard', icon: <DashboardOutlinedIcon /> }
+        { txt: 'dashboard', key: 'dashboard', type: 'child', path: 'dashboard', icon: <DashboardOutlinedIcon /> },
+        { txt: 'Result (Main, Final)', key: 'result', type: 'child', path: 'result', icon: <DashboardOutlinedIcon /> }
     ],
     months: [
         "มกราคม",
@@ -42,7 +44,6 @@ const Routers = () => {
     let VER = import.meta.env.VITE_VERSION;
     const redux = useSelector((state: any) => state.reducer);
     const dispatch = useDispatch();
-
     useEffect(() => {
         if (typeof redux.rev == 'undefined' || redux.rev != VER) {
             localStorage.clear();
@@ -59,11 +60,14 @@ const Routers = () => {
                 <Routes>
                     <Route element={<Layout />}>
                         <Route path={`${base}`} element={<Index />} />
-                        <Route path={`${base}/*`} element={<Index />} />
+                        <Route path={`${base}/*`} element={<NotFound />} />
                         <Route path={`${base}/ukeharai`} element={<Index />} />
                         {/* <Route path={`${base}/warning/:mode`} element={<Warning />} /> */}
                         <Route path={`${base}/warning`} element={<Warning />} />
                         <Route path={`${base}/dashboard`} element={<Dashboard />} />
+                        <Route path={`${base}/result`} element={<ResultPage />} />
+                        <Route path={`${base}/aggrid`} element={<AgGrid />} />
+                        {/* <Route path={`${base}/qrcode`} element={<QRCodeGenerator />} /> */}
                     </Route>
                     <Route path={`${base}/*`} element={<NotFound />} />
                     <Route path={`${base}/login`} element={<Login />} />

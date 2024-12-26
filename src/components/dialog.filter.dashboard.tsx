@@ -1,18 +1,18 @@
-import   { useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import SearchIcon from '@mui/icons-material/Search';
 import DialogActions from '@mui/material/DialogActions'
 import Button from '@mui/material/Button'
-import { Select, MenuItem  } from '@mui/material'
+import { Select, MenuItem } from '@mui/material'
 import moment from 'moment'
 import { MContext } from '../interface'
 import { ThemeContext } from '../router/Routers'
 import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
 function DialogFilterDashboard(props: any) {
     const { open, setOpen, year, setYear, month, setMonth, init } = props;
-    const [rYear] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString()]);
+    const [rYear] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString(), moment().add(1, 'year').year().toString()]);
     const context: MContext = useContext(ThemeContext);
     const _months = context.months;
     return (
@@ -55,6 +55,10 @@ function DialogFilterDashboard(props: any) {
                 </div>
             </DialogContent>
             <DialogActions>
+                <Button variant='contained' onClick={()=>{
+                    setYear(moment().year().toString());
+                    setMonth(parseInt(moment().format('MM')));
+                }}>Today</Button>
                 <Button variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]' onClick={() => setOpen(false)}>Close</Button>
                 <Button variant='contained' className='bg-[#5c5fc8]' onClick={() => {
                     init();

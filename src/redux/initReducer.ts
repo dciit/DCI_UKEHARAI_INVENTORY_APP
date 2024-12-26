@@ -37,7 +37,6 @@ const IndexReducer = (state = initialState, action: any) => {
                 privilege: action.payload
             }
         case 'MENU_ACTIVE':
-            console.log(action.payload)
             return {
                 ...state,
                 menuActive: action.payload

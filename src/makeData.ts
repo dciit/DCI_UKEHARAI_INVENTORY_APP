@@ -1,7 +1,6 @@
-//@ts-nocheck
-import { faker } from '@faker-js/faker';
+//@ts-check
 import { InventoryBalancePltype, ListCurpln, MActPlans, MInventory } from './interface';
-import { initRowCurPln, initRowDelivery, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowInventoryPlanningFinal, initRowInventoryPlanningMain, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale, initTotalInbound, initTotalTitleInbound } from './makeRow';
+import { initNewTotalTitleInbound, initRowCurPln, initRowDelivery, initRowEmpty, initRowFinal, initRowHoldInventory, initRowInventory, initRowInventoryBalance, initRowInventoryBalancePltype, initRowInventoryPlanning, initRowMainAssy, initRowPDTInventory, initRowSale, initRowTitleTotalInventory, initRowTotalCurPlnAllLine, initRowTotalSale} from './makeRow';
 
 export type Person = {
     firstName: string;
@@ -23,31 +22,37 @@ export type Person = {
 };
 
 
-export const initData = (data: MActPlans[], year: string, ym: string) => {
+export const initData = (data: MActPlans[], ym: string) => {
     const dummyData: MActPlans[] = [];
+    console.log(data);
     data.map((oData: MActPlans) => {
         dummyData.push(initRowTotalSale(oData));
         oData.listSaleForecast.map((oSale) => {
-            let haveSale: number | string = Object.values(oSale).filter((o, i) => o == 0).length;
+            let haveSale: number | string = Object.values(oSale).filter((o) => o == 0).length;
             if (haveSale != 31) {
                 dummyData.push(initRowSale(oData, oSale));
             }
         });
-        oData.listDelivery.map((oDelivery) => {
-            // let haveSale: number | string = Object.values(oDelivery).filter((o, i) => o == 0).length;
-            // if (haveSale != 31) {
-            dummyData.push(initRowDelivery(oData, oDelivery));
-            // }
-        });
+        if (oData.listDelivery.length == 0) {
+            dummyData.push(initRowDelivery(oData, null));
+        } else {
+            oData.listDelivery.map((oDelivery) => {
+                dummyData.push(initRowDelivery(oData, oDelivery));
+            });
+        }
         dummyData.push(initRowTitleTotalInventory(oData));
         oData.inventory.map((oInventory: MInventory) => {
-            dummyData.push(initRowInventory(oData, oInventory, year));
+            dummyData.push(initRowInventory(oData, oInventory));
         });
         dummyData.push(initRowInventoryBalance(oData)); // คำนวนผ่าน API
         oData.inventoryBalancePltype.map((oInventoryBalancePltype: InventoryBalancePltype) => {
             dummyData.push(initRowInventoryBalancePltype(oData, oInventoryBalancePltype)); // คำนวนผ่าน API
         })
-        dummyData.push(initTotalTitleInbound(oData, ym));
+        // dummyData.push(initTotalTitleInbound(oData, ym));
+        if(oData.model == "JT1GUVDYR@TF"){
+            console.log(oData.newInbound)
+        }
+        dummyData.push(initNewTotalTitleInbound(oData.newInbound));
         oData.listCurpln.map((oCurpln: ListCurpln) => {
             dummyData.push(initRowCurPln(oData, oCurpln));
             dummyData.push(initRowMainAssy(oData, oCurpln.wcno, ym));
@@ -56,38 +61,13 @@ export const initData = (data: MActPlans[], year: string, ym: string) => {
         dummyData.push(initRowTotalCurPlnAllLine(oData));
         dummyData.push(initRowHoldInventory(oData))
         dummyData.push(initRowPDTInventory(oData))
-        dummyData.push(initRowInventoryPlanning(oData, ym)); // คำนวนผ่าน API
-        if (oData.modelGroup == 'ODM') {
-            dummyData.push(initRowInventoryPlanningFinal(oData));
-        } else {
-            dummyData.push(initRowInventoryPlanningMain(oData)); // คำนวนผ่าน API
-        }
+        dummyData.push(initRowInventoryPlanning(oData)); // คำนวนผ่าน API
+        // if (oData.modelGroup == 'ODM') {
+        //     dummyData.push(initRowInventoryPlanningFinal(oData));
+        // } else {
+        //     dummyData.push(initRowInventoryPlanningMain(oData)); // คำนวนผ่าน API
+        // }
         dummyData.push(initRowEmpty());
     })
     return dummyData;
 }
-
-export const makeData = (numberOfRows: number) =>
-    [...Array(numberOfRows).fill(null)].map(() => ({
-        firstName: faker.person.firstName(),
-        middleName: faker.person.firstName(),
-        lastName: faker.person.lastName(),
-        email: faker.internet.email(),
-        phoneNumber: faker.phone.number(),
-        address: faker.location.streetAddress(),
-        zipCode: faker.location.zipCode(),
-        city: faker.location.city(),
-        state: faker.location.state(),
-        country: faker.location.country(),
-        petName: faker.animal.cat(),
-        age: faker.number.float({ min: 0, max: 100 }),
-        salary: faker.number
-            .float({ min: 0, max: 1000000 })
-            .toLocaleString('en-US', {
-                style: 'currency',
-                currency: 'USD',
-            }),
-        dateOfBirth: faker.date.past({ years: 50 }).toDateString(),
-        dateOfJoining: faker.date.past({ years: 20 }).toDateString(),
-        isActive: faker.datatype.boolean() ? 'Active' : 'Inactive',
-    }));

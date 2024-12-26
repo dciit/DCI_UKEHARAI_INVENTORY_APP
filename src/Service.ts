@@ -1,6 +1,6 @@
 
 import Axios from "axios";
-import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln, MUpdateInventoryMain } from "./interface";
+import { EkbWipPartStock, MGetActPlan, MGetUkeCurPln, ParamIotResult, PropUkeInfo } from "./interface";
 import { api_base } from "./constant";
 
 const http = Axios.create({
@@ -21,20 +21,13 @@ const httpHR = Axios.create({
 
 
 
-export function API_GET_WARNING() {
+export function API_GET_WARNING(calDelivery: string) {
     return new Promise<any>(resolve => {
-        http.get(`/warning/get`).then((res) => {
+        http.get(`/warning/get/${calDelivery}`).then((res) => {
             resolve(res.data);
         })
     })
 }
-// export function API_GET_WARNING(ym: string, type: string) {
-//     return new Promise<any>(resolve => {
-//         http.get(`/warning/get/${ym}/${type}`).then((res) => {
-//             resolve(res.data);
-//         })
-//     })
-// }
 
 export function API_INIT_ACT_PLAN(ymd: string) {
     return new Promise<MGetActPlan>(resolve => {
@@ -109,8 +102,7 @@ export function API_GET_MASTER(objCode = '') {
     })
 }
 
-export function API_ADJUST_INVENTORY_MAIN(param: any) {
-    // console.log(param)
+export function API_ADJUST_INVENTORY_MAIN(param: any) { 
     return new Promise(resolve => {
         http.post(`/ukeharai/adjustInventoryMain`, param).then((res) => {
             resolve(res.data);
@@ -164,18 +156,52 @@ export function API_CHART_DATA(param: any) {
 }
 
 
-export function API_UPDATE_INV_MAIN(param: MUpdateInventoryMain) {
-    return new Promise<any>(resolve => {
-        http.post(`/update_inventory_main`, param).then((res) => {
-            resolve(res.data);
-        })
-    })
-}
+// export function API_UPDATE_INV_MAIN(param: MUpdateInventoryMain) {
+//     return new Promise<any>(resolve => {
+//         http.post(`/update_inventory_main`, param).then((res) => {
+//             resolve(res.data);
+//         })
+//     })
+// }
 
 export function API_WARNING_EXCEL(ym: string) {
     return new Promise<any>(resolve => {
         http.get(`/warning/excel/${ym}`).then((res) => {
             resolve(res.data);
+        })
+    })
+}
+
+export function ApiGetIotResult(param: ParamIotResult) {
+    return new Promise<any>(resolve => {
+        http.post(`/GetIotResult`, param).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function APISetUkeInfoRedis(ym: string) {
+    return new Promise<PropUkeInfo[]>(resolve => {
+        http.get(`/ukeharai/info/set/${ym}`,).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function APIGetUkeInfoRedis(ym: string) {
+    return new Promise<PropUkeInfo[]>(resolve => {
+        http.get(`/ukeharai/info/get/${ym}`,).then((res) => {
+            resolve(res.data);
+        })
+    })
+}
+
+export function APIPullFGInv(){
+    return new Promise<any>(resolve => {
+        http.post(`/ukeharai/pullFGInv`).then((res) => {
+            resolve(res);
+        }).catch((err) => {
+            resolve(err);
         })
     })
 }
