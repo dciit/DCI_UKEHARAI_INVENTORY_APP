@@ -82,7 +82,7 @@ function Toolbar() {
                                 setOpenDrawer(false);
                                 navigate(`/${base}/${oNavMenu.key}`);
                                 dispatch({ type: 'MENU_ACTIVE', payload: oNavMenu.key })
-                            }}>{oNavMenu.key}</span>
+                            }}>{oNavMenu.txt}</span>
                         })
                     }
                 </div>

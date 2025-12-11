@@ -1,72 +1,82 @@
-import { useContext, useState } from 'react'
-import Dialog from '@mui/material/Dialog'
-import DialogTitle from '@mui/material/DialogTitle'
-import DialogContent from '@mui/material/DialogContent'
-import SearchIcon from '@mui/icons-material/Search';
-import DialogActions from '@mui/material/DialogActions'
-import Button from '@mui/material/Button'
-import { Select, MenuItem } from '@mui/material'
-import moment from 'moment'
-import { MContext } from '../interface'
-import { ThemeContext } from '../router/Routers'
-import FilterAltOutlinedIcon from '@mui/icons-material/FilterAltOutlined';
+import { useContext, useState } from "react";
+import { IoIosSearch } from "react-icons/io";
+import { CgEditBlackPoint } from "react-icons/cg";
+import moment from "moment";
+import { MContext } from "../interface";
+import { ThemeContext } from "../router/Routers";
+import { Button, Flex, Modal, Select } from "antd";
 function DialogFilterDashboard(props: any) {
-    const { open, setOpen, year, setYear, month, setMonth, init } = props;
-    const [rYear] = useState<string[]>([moment().add(-1, 'year').year().toString(), moment().year().toString(), moment().add(1, 'year').year().toString()]);
-    const context: MContext = useContext(ThemeContext);
-    const _months = context.months;
-    return (
-        <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth='sm'>
-            <DialogTitle >
-                <div className='flex gap-2 flex-row items-center'>
-                    <div className='rounded-full bg-[#5c5fc8] text-[#fff]  w-[36px] h-[36px] flex items-center justify-center'>
-                        <FilterAltOutlinedIcon sx={{ fontSize: '20px' }} />
-                    </div>
-                    <div className='flex flex-col'>
-                        <span className='text-[18px]'>FILTER</span>
-                        <span className='text-[12px] text-[#939393]'>ค้นหาข้อมูล</span>
-                    </div>
-                </div>
-            </DialogTitle>
-            <DialogContent dividers>
-                <div className='group-search flex gap-2 p-2 bg-white rounded-lg mb-3 ' >
-                    <div className="flex flex-col ">
-                        <span>Year</span>
-                        <Select value={year} size='small' onChange={(e) => setYear(e.target.value)} >
-                            {
-                                rYear.map((oYear: string, iYear: number) => {
-                                    return <MenuItem value={oYear} key={iYear}>{oYear}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                    <div className="flex flex-col ">
-                        <span>Month</span>
-                        <Select value={month} size='small' onChange={(e: any) => {
-                            setMonth(e.target.value);
-                        }}>
-                            {
-                                _months.map((oMonth: string, iMonth: number) => {
-                                    return <MenuItem value={(iMonth + 1)} key={(iMonth + 1)}>{oMonth}</MenuItem>
-                                })
-                            }
-                        </Select>
-                    </div>
-                </div>
-            </DialogContent>
-            <DialogActions>
-                <Button variant='contained' onClick={()=>{
-                    setYear(moment().year().toString());
-                    setMonth(parseInt(moment().format('MM')));
-                }}>Today</Button>
-                <Button variant='outlined' className='border-[#5c5fc8] text-[#5c5fc8]' onClick={() => setOpen(false)}>Close</Button>
-                <Button variant='contained' className='bg-[#5c5fc8]' onClick={() => {
-                    init();
-                    setOpen(false);
-                }} startIcon={<SearchIcon />}>Search</Button>
-            </DialogActions>
-        </Dialog>
-    )
+  const { open, setOpen, year, setYear, month, setMonth, init } = props;
+  const [rYear] = useState<string[]>([
+    moment().add(-1, "year").year().toString(),
+    moment().year().toString(),
+    moment().add(1, "year").year().toString(),
+  ]);
+  const context: MContext = useContext(ThemeContext);
+  const _months = context.months;
+  return (
+    <Modal
+      open={open}
+      onCancel={() => setOpen(false)}
+      title="ค้นหาข้อมูล"
+      footer={
+        <Flex justify="end" gap={8}>
+          <Button
+            onClick={() => {
+              setYear(moment().year().toString());
+              setMonth(parseInt(moment().format("MM")));
+            }}
+            icon={<CgEditBlackPoint />}
+          >
+            เดือนนี้
+          </Button>
+          <Button
+            type="primary"
+            icon={<IoIosSearch />}
+            onClick={() => {
+              init();
+              setOpen(false);
+            }}
+          >
+            ค้นหา
+          </Button>
+          <Button onClick={() => setOpen(false)}>ปิดหน้าต่าง</Button>
+        </Flex>
+      }
+    >
+      <div className="group-search flex gap-2 p-2 bg-white rounded-lg mb-3 ">
+        <div className="flex flex-col ">
+          <span>Year</span>
+          <Select value={year} onChange={(e) => setYear(e)}>
+            {rYear.map((oYear: string, iYear: number) => {
+              return (
+                <Select.Option value={oYear} key={iYear}>
+                  {oYear}
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </div>
+        <div className="flex flex-col ">
+          <span>Month</span>
+          <Select
+            value={month}
+            onChange={(e: any) => {
+              setMonth(e);
+            }}
+          >
+            {_months.map((oMonth: string, iMonth: number) => {
+              return (
+                <Select.Option value={iMonth + 1} key={iMonth + 1}>
+                  {oMonth}
+                </Select.Option>
+              );
+            })}
+          </Select>
+        </div>
+      </div>
+    </Modal>
+  );
 }
 
-export default DialogFilterDashboard
+export default DialogFilterDashboard;

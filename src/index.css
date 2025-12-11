@@ -5,7 +5,7 @@
 #root,
 html,
 body {
-  height: 100%
+  height: 100%;
 }
 
 .row-total-saleforecast {
@@ -53,7 +53,6 @@ body {
   background-color: rgb(224, 255, 224) !important;
 }
 
-
 .row-hold {
   background-color: rgb(247, 255, 136) !important;
 }
@@ -66,16 +65,14 @@ body {
   background-color: rgb(255, 205, 141) !important;
 }
 
-
 .ag-cell {
   border-right: 1px solid #a3a3a3 !important;
   /* Add a light gray border */
 }
 
-.ag-row:last-child .ag-cell {
+/* .ag-row:last-child .ag-cell {
   border-right: none !important;
-  /* Remove border for the last cell if needed */
-}
+} */
 
 .ag-header-cell {
   border-right: 1px solid #a3a3a3 !important;
@@ -94,7 +91,7 @@ table.tb-detail th {
   border-color: black;
 }
 
-table * {
+table#tbWarning * {
   font-size: 10px;
 }
 
@@ -104,14 +101,13 @@ table.tb-detail {
 }
 
 table.tb-detail thead td,
-table.tb-detail thead td:nth-child(-n+9) {
+table.tb-detail thead td:nth-child(-n + 9) {
   background: rgb(70, 134, 243);
   color: white;
   border-color: black;
   min-width: 120px;
   text-align: center;
 }
-
 
 .wrapper {
   /* position: relative;
@@ -124,10 +120,10 @@ table.tb-detail thead td:nth-child(-n+9) {
 }
 
 table.tb-detail td {
-  white-space: nowrap
+  white-space: nowrap;
 }
 
-table.tb-detail thead tr:first-child td:nth-child(-n+3),
+table.tb-detail thead tr:first-child td:nth-child(-n + 3),
 table.tb-detail thead td:nth-child(5) {
   min-width: 75px !important;
 }
@@ -140,7 +136,7 @@ table.tb-detail thead td:nth-child(6) {
   min-width: 200px !important;
 }
 
-table.tb-detail tbody td:nth-child(n+13) {
+table.tb-detail tbody td:nth-child(n + 13) {
   min-width: 75px !important;
   text-align: center;
 }
@@ -154,7 +150,6 @@ table.tb-detail thead td:nth-child(12) {
 table.tb-detail thead td:nth-child(9) {
   min-width: 200px !important;
 }
-
 
 .bg-plan-head {
   background: rgb(168, 224, 255);
@@ -181,7 +176,6 @@ table.tb-detail thead td:nth-child(9) {
   font-weight: bold;
 }
 
-
 .bg-inbound-head {
   background: #74ff94a6;
 }
@@ -194,13 +188,11 @@ table.tb-detail thead td:nth-child(9) {
   background: #a4f5bb47;
 }
 
-
 td:has(.bg-inbound-total) {
   color: white;
   background: rgb(0 95 171);
   font-weight: bold;
 }
-
 
 .bg-sale-head {
   background: #ffb82aa6;
@@ -218,7 +210,6 @@ td:has(.bg-sale-total) {
   background-color: #ffb82aa6 !important;
 }
 
-
 .bg-inventory-head {
   background: #b95ff8a6;
 }
@@ -230,7 +221,6 @@ td:has(.bg-sale-total) {
 .bg-inventory-content {
   background: #b95ff8a6;
 }
-
 
 .bg-footer {
   background: rgb(92, 152, 255);
@@ -405,7 +395,6 @@ td:has(.bg-sale) {
   padding-left: 16px !important;
 }
 
-
 td:has(.bg-header-inventory-balance-pltype) {
   padding-left: 16px !important;
 }
@@ -490,7 +479,6 @@ td:has(.bg-header-inventory-day) {
   background: #c9bbff;
 }
 
-
 td:has(.bg-header-inventory-balance-pltype-day) {
   background: #ae115d94;
 }
@@ -506,7 +494,6 @@ td:has(.bg-header-inventory-balance-pltype-total) {
 tr:has(.bg-header-inventory-balance-pltype-empty) {
   background: #eb96cd21 !important;
 }
-
 
 td:has(.bg-header-inventory-balance-day) {
   background: #dc2e7b63;
@@ -597,12 +584,12 @@ tr:has(.bg-inventory-pdt-empty) {
   color: white;
 } */
 
-th.MuiTableCell-head>div:first-child {
+th.MuiTableCell-head > div:first-child {
   display: flex;
   justify-content: flex-end;
 }
 
-tr>td:has(.bg-empty) {
+tr > td:has(.bg-empty) {
   color: white;
 }
 
@@ -666,7 +653,6 @@ table#tbAdjPlan {
   color: white !important;
 }
 
-
 table#tbGroupModel,
 table#tbGroupModel td,
 table#tbGroupModel th {
@@ -687,7 +673,7 @@ table#tbGroupModel {
   font-size: 22px !important;
 }
 
-button.MuiIconButton-root[aria-label*='-'] {
+button.MuiIconButton-root[aria-label*="-"] {
   color: red !important;
 }
 
@@ -707,4 +693,142 @@ tr:has(.bg-delivery) td {
 .page-a3 {
   width: 29.7cm;
   height: 42cm;
+}
+
+table#tbWarning tbody td:first-child,
+table#tbWarning thead td:first-child {
+  position: sticky;
+  left: 0;
+  /* Freezes the first column */
+  background-color: #f9f9f9;
+  z-index: 1;
+  /* Ensure column appears above other content */
+}
+
+table#tbWarning {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+table#tbWarning tr.colspan th {
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+table#tbWarning thead tr.colspan th {
+  position: sticky;
+  top: 0;
+  background-color: #f1f1f1;
+  z-index: 2;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(1),
+table#tbWarning thead tr th.colspan:nth-child(1) {
+  position: sticky;
+  left: 0;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.un-colspan td:nth-child(1),
+table#tbWarning thead tr.un-colspan th:nth-child(1) {
+  position: sticky;
+  left: 400px;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.un-colspan td:nth-child(2),
+table#tbWarning thead tr.un-colspan th:nth-child(2) {
+  position: sticky;
+  left: 550px;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(2),
+table#tbWarning thead tr th.colspan:nth-child(2) {
+  position: sticky;
+  left: 75px;
+  /* Freeze the second column */
+  background-color: #f9f9f9;
+  z-index: 999;
+  height: 25px;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(3),
+table#tbWarning thead tr th.colspan:nth-child(3) {
+  position: sticky;
+  left: 200px;
+  /* Freeze the third column */
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(4),
+table#tbWarning thead tr th.colspan:nth-child(4) {
+  position: sticky;
+  left: 275px;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(5),
+table#tbWarning thead tr th.colspan:nth-child(5) {
+  position: sticky;
+  left: 400px;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.colspan td:nth-child(6),
+table#tbWarning thead tr th.colspan:nth-child(6) {
+  position: sticky;
+  left: 550px;
+  background-color: #f9f9f9;
+  z-index: 999;
+}
+
+table#tbWarning tbody tr.colspan tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table#tbWarning thead tr th.colspan {
+  text-align: center !important;
+  z-index: 9999 !important;
+}
+
+.cell-content-right {
+  justify-content: flex-end !important;
+}
+.cell-content-center {
+  justify-content: center !important;
+}
+
+table#tbWarning th {
+  position: sticky !important;
+  top: 0 !important;
+  background: red;
+}
+
+.color-change-2x {
+  -webkit-animation: color-change-2x 1s linear infinite alternate both;
+  animation: color-change-2x 1s linear infinite alternate both;
+}
+@-webkit-keyframes color-change-2x {
+  0% {
+    background: #f3ef05;
+  }
+  100% {
+    background: #ffbe0c;
+  }
+}
+@keyframes color-change-2x {
+  0% {
+    background: #ffbe0c;
+  }
+  100% {
+    background: #f3ef05;
+  }
 }

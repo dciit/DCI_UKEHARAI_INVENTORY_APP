@@ -1,5 +1,5 @@
 import moment from "moment";
-import { InventoryBalance, InventoryBalancePltype, ListCurpln, ListDelivery, ListInventoryPlanningMain, ListSaleForecast, MActMain, MActPlan, MActPlans, MData, MInventory } from "./interface";
+import { InventoryBalance, InventoryBalancePltype, ListCurpln, ListDelivery, ListInventoryPlanningMain, ListSaleForecast, MActMain, MActPlans, MData, MInventory } from "./interface";
 const initRow = (): MActPlans | any => {
     return {
         warning: false,
@@ -139,7 +139,7 @@ export const initRowMainAssy = (data: MActPlans, wcno: number, ym: string) => {
     row.total = total.toLocaleString('en');
     return row
 }
-export const initRowFinal = (data: MActPlans, wcno: number) => {
+export const initRowFinal = (data: any, wcno: number) => {
     var Row = initRow();
     Row.sbu = data.sbu;
     Row.model = data.modelGroup;
@@ -150,10 +150,10 @@ export const initRowFinal = (data: MActPlans, wcno: number) => {
     let total = 0;
     [...Array(31)].map((_, iDay: number) => {
         var vDay: string = (iDay + 1).toLocaleString('en', { minimumIntegerDigits: 2 });
-        var index = data.listActFinal.findIndex((o: MActPlan) => o.Prdymd == vDay && o.Model == data.model && o.Wcno == wcno);
+        var index = data.listActFinal.findIndex((o: any) => o.prdymd == vDay && o.model == data.model && o.wcno == wcno);
         if (index != -1) {
-            Row[`d${vDay}`] = data.listActFinal[index].Qty;
-            total += data.listActFinal[index].Qty;
+            Row[`d${vDay}`] = data.listActFinal[index].qty;
+            total += data.listActFinal[index].qty;
         }
     });
     Row.total = total.toLocaleString('en');
@@ -207,6 +207,8 @@ export const initNewTotalTitleInbound = (data: any) => { // ym = YYYYMM
             total += nInbound;
         });
         Row.total = total.toLocaleString('en');
+    } else {
+        console.log('first')
     }
 
     return Row

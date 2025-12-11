@@ -381,8 +381,7 @@ const Index = () => {
     // }
     async function initContent() {
         setIsLoading(true);
-        const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
-        // setDataDef(res.content);
+        const res: MGetActPlan = await API_INIT_ACT_PLAN(`${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`,Sku);
         let data: any = initData(res.content, `${_year}${(_month + 1).toLocaleString('en', { minimumIntegerDigits: 2 })}`);
         setData(data);
     }
@@ -526,8 +525,8 @@ const Index = () => {
                         setSku(e);
                     }}>
                         {
-                            ['SCR','1YC','2YC','ODM'].map((oSKU: string, i: number) => {
-                                return <Select.Option value={i} key={i}>{oSKU}</Select.Option>
+                            ['SCR','1YC','2YC','ODM','PVL'].map((oSKU: string, i: number) => {
+                                return <Select.Option value={oSKU} key={i}>{oSKU}</Select.Option>
                             })
                         }
                     </Select>

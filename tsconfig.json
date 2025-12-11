@@ -23,6 +23,7 @@
     "noFallthroughCasesInSwitch": true,
     "strictNullChecks": false,
     "strictPropertyInitialization": false,
+    "esModuleInterop": true,
   },
   "include": [
     "src"
